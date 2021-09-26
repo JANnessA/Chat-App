@@ -6,12 +6,33 @@ import {
   StyleSheet,
   ImageBackground,
   TextInput,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-community/async-storage';
+import {login} from '../../helpers/network';
 
 export default function Login({navigation}) {
-  const [email, setEmail] = useState('');
+  const [phone, setPhonne] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleLoggin = async () => {
+    if (!phone || !password) {
+      Alert.alert('Các trường không được để trống!');
+      return;
+    }
+    const res = await login({phone, password});
+    if (!res.success) {
+      Alert.alert(res.message);
+      return;
+    }
+    try {
+      await AsyncStorage.setItem('@token', res.data.token);
+      navigation.navigate('TopTab');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <ImageBackground
@@ -26,11 +47,11 @@ export default function Login({navigation}) {
       <View style={styles.body}>
         <TextInput
           style={styles.input}
-          onChangeText={t => setEmail(t)}
-          value={email}
+          onChangeText={t => setPhonne(t)}
+          value={phone}
           placeholderTextColor="#aaa"
-          placeholder="Email"
-          keyboardType="email-address"
+          placeholder="Phone"
+          keyboardType="default"
         />
         <TextInput
           style={styles.input}
@@ -41,9 +62,7 @@ export default function Login({navigation}) {
           keyboardType="default"
           secureTextEntry
         />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('TopTab')}>
+        <TouchableOpacity style={styles.button} onPress={handleLoggin}>
           <Text style={styles.txtButton}>Đăng nhập</Text>
         </TouchableOpacity>
 

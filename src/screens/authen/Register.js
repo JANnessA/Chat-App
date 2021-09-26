@@ -6,15 +6,41 @@ import {
   StyleSheet,
   ImageBackground,
   TextInput,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-community/async-storage';
+import {signUp} from '../../helpers/network';
 
 export default function Register({navigation}) {
-  const [email, setEmail] = useState('');
+  // const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [userName, setUserName] = useState('');
+  const [fullname, setFullname] = useState('');
   const [rePass, setRePass] = useState('');
-  const [phone, setPhone] = useState(0);
+  const [phone, setPhone] = useState('');
+
+  const handleSignup = async () => {
+    if (!phone || !password) {
+      Alert.alert('Các trường không được để trống!');
+      return;
+    }
+    if (password !== rePass) {
+      Alert.alert('Mật khẩu nhập lại không khớp!');
+      return;
+    }
+    const res = await signUp({fullname, phone, password});
+    if (!res.success) {
+      Alert.alert(res.message);
+      return;
+    }
+    try {
+      Alert.alert('Đăng ký thành công!');
+      await AsyncStorage.setItem('@token', res.data.token);
+      navigation.navigate('TopTab');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <ImageBackground
@@ -29,27 +55,27 @@ export default function Register({navigation}) {
       <View style={styles.body}>
         <TextInput
           style={styles.input}
-          onChangeText={t => setUserName(t)}
-          value={userName}
+          onChangeText={t => setFullname(t)}
+          value={fullname}
           placeholderTextColor="#aaa"
-          placeholder="Username"
+          placeholder="Fullname"
           keyboardType="default"
         />
-        <TextInput
+        {/* <TextInput
           style={styles.input}
           onChangeText={t => setEmail(t)}
           value={email}
           placeholderTextColor="#aaa"
           placeholder="Email"
           keyboardType="email-address"
-        />
+        /> */}
         <TextInput
           style={styles.input}
           onChangeText={t => setPhone(t)}
           value={phone}
           placeholderTextColor="#aaa"
           placeholder="Phone number"
-          keyboardType="phone-pad"
+          keyboardType="default"
         />
         <TextInput
           style={styles.input}
@@ -69,9 +95,7 @@ export default function Register({navigation}) {
           keyboardType="default"
           secureTextEntry
         />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity style={styles.button} onPress={handleSignup}>
           <Text style={styles.txtButton}>Đăng kí</Text>
         </TouchableOpacity>
       </View>
