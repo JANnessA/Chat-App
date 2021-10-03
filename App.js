@@ -4,6 +4,10 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import StackAuthen from './src/navigations/stackAuthen';
 import TopTab from './src/navigations/topTab';
+import ChatDetail from './src/screens/main/ChatDetail';
+import Call from './src/screens/main/Call';
+import FriendRequest from './src/screens/main/FriendRequest';
+import FriendProfile from './src/screens/main/friendProfile';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -31,6 +35,26 @@ export default function App() {
           name="TopTab"
           component={TopTab}
           options={{headerTitle: 'Chat App'}}
+        />
+        <Stack.Screen
+          name="ChatDetail"
+          component={ChatDetail}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Call"
+          component={Call}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="FriendRequest"
+          component={FriendRequest}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="FriendProfile"
+          component={FriendProfile}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

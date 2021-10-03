@@ -7,13 +7,15 @@ import {
   ImageBackground,
   TextInput,
   Alert,
+  Modal,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-community/async-storage';
 import {login} from '../../helpers/network';
 
 export default function Login({navigation}) {
-  const [phone, setPhonne] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLoggin = async () => {
@@ -47,7 +49,7 @@ export default function Login({navigation}) {
       <View style={styles.body}>
         <TextInput
           style={styles.input}
-          onChangeText={t => setPhonne(t)}
+          onChangeText={t => setPhone(t)}
           value={phone}
           placeholderTextColor="#aaa"
           placeholder="Phone"
@@ -62,11 +64,14 @@ export default function Login({navigation}) {
           keyboardType="default"
           secureTextEntry
         />
-        <TouchableOpacity style={styles.button} onPress={handleLoggin}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('TopTab')}>
           <Text style={styles.txtButton}>Đăng nhập</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={{marginTop: 15}}>
+        <TouchableOpacity
+          style={{marginTop: 18}}
+          onPress={() => setModalVisible(true)}>
           <Text>Quên mật khẩu?</Text>
         </TouchableOpacity>
 
@@ -78,6 +83,31 @@ export default function Login({navigation}) {
           />
         </TouchableOpacity>
       </View>
+      <Modal animationType="fade" transparent={true} visible={modalVisible}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <TouchableOpacity
+              style={styles.closeIconB}
+              onPress={() => setModalVisible(false)}>
+              <Ionicons name={'close-outline'} size={30} color={'#000'} />
+            </TouchableOpacity>
+            <Text style={styles.forgetTitle}>QUÊN MẬT KHẨU?</Text>
+            <Text style={styles.inforT}>
+              Nhập lại số điện thoại của mình để lấy lại mật khẩu
+            </Text>
+            <TextInput
+              style={styles.inputLine}
+              onChangeText={setPhone}
+              value={phone}
+              placeholder="phone number"
+              keyboardType="numeric"
+            />
+            <TouchableOpacity style={styles.inputLineT}>
+              <Text style={styles.txtButton}>Gửi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }
@@ -98,6 +128,7 @@ const styles = StyleSheet.create({
     marginVertical: 6,
     borderRadius: 10,
     padding: 12,
+    fontSize: 18,
   },
   button: {
     width: 280,
@@ -114,5 +145,69 @@ const styles = StyleSheet.create({
   },
   buttonFinger: {
     marginTop: 50,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    width: '85%',
+    height: '45%',
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  closeIconB: {
+    backgroundColor: '#ddd',
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 15,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  forgetTitle: {
+    fontSize: 25,
+  },
+  inputLine: {
+    width: 250,
+    height: 50,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginTop: 10,
+    color: '#aaa',
+    padding: 12,
+  },
+  inforT: {
+    fontSize: 15,
+    color: '#aaa',
+    marginVertical: 10,
+  },
+  inputLineT: {
+    width: 250,
+    height: 50,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: '#fff',
+    marginTop: 10,
+    color: '#aaa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: 20,
+    backgroundColor: '#07507d',
   },
 });

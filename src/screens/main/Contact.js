@@ -55,7 +55,7 @@ export default function Contact({navigation}) {
           <Ionicons
             name={'search-outline'}
             size={25}
-            color={'#8660cc'}
+            color={'#143375'}
             style={styles.searchImg}
           />
         </TouchableOpacity>
@@ -75,16 +75,22 @@ export default function Contact({navigation}) {
           <Ionicons
             name={'close-circle-outline'}
             size={25}
-            color={'#8660cc'}
+            color={'#143375'}
             style={styles.imgClose}
           />
         </TouchableOpacity>
       </View>
+      <TouchableOpacity
+        style={styles.contaiFriendRequest}
+        onPress={() => navigation.navigate('FriendRequest')}>
+        <Text style={styles.titleSendRequest}>Số lời mời kết bạn (0)</Text>
+      </TouchableOpacity>
       <FlatList
         data={FakeData}
         renderItem={item => renderItem({item})}
         keyExtractor={item => item.id}
         showsVerticalScrollIndicator={false}
+        initialNumToRender={10}
         style={{marginTop: 10}}
       />
     </View>
@@ -99,8 +105,8 @@ const styles = StyleSheet.create({
   },
   contaiSearch: {
     flexDirection: 'row',
-    width: 280,
-    height: 40,
+    width: 290,
+    height: 50,
     borderWidth: 1,
     borderRadius: 5,
     borderColor: '#143375',
@@ -108,6 +114,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: 220,
+    fontSize: 17,
   },
   contaiIcon: {
     justifyContent: 'center',
@@ -185,5 +192,22 @@ const styles = StyleSheet.create({
   },
   txtButton: {
     color: '#fff',
+  },
+  contaiFriendRequest: {
+    width: '95%',
+    height: 50,
+    backgroundColor: '#143375',
+    borderWidth: 1,
+    borderColor: '#143375',
+    marginVertical: 10,
+    borderRadius: 10,
+    padding: 12,
+    marginHorizontal: 12,
+    alignItems: 'center',
+  },
+  titleSendRequest: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#d19741',
   },
 });
