@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,33 @@ import {
   Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-// import {GiftedChat} from 'react-native-gifted-chat';
+import {GiftedChat} from 'react-native-gifted-chat';
 
 export default function ChatDetail({route, navigation}) {
   const [visibleModal, setVisibleModal] = useState(false);
   const {item} = route.params;
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    setMessages([
+      {
+        _id: 1,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
+    ]);
+  }, []);
+
+  const onSend = useCallback((messages = []) => {
+    setMessages(previousMessages =>
+      GiftedChat.append(previousMessages, messages),
+    );
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -21,7 +43,9 @@ export default function ChatDetail({route, navigation}) {
           onPress={() => navigation.goBack()}>
           <Ionicons name={'chevron-back-outline'} size={30} color={'#fff'} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.contaiName}>
+        <TouchableOpacity
+          style={styles.contaiName}
+          onPress={() => navigation.navigate('FriendProfile')}>
           <Image
             source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
             style={styles.img}
@@ -29,7 +53,9 @@ export default function ChatDetail({route, navigation}) {
           <Text style={styles.name}>{item.item.username}</Text>
         </TouchableOpacity>
         <View style={styles.flex}>
-          <TouchableOpacity style={styles.buttonBack}>
+          <TouchableOpacity
+            style={styles.buttonBack}
+            onPress={() => navigation.navigate('Call')}>
             <Ionicons name={'call-outline'} size={30} color={'#fff'} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonBack}>
@@ -42,7 +68,19 @@ export default function ChatDetail({route, navigation}) {
           </TouchableOpacity>
         </View>
       </View>
-      <Modal animationType="slide" transparent={true} visible={visibleModal}>
+      {
+        //bỏ chú thích
+        //   <GiftedChat
+        //   messages={messages}
+        //   onSend={messages => onSend(messages)}
+        //   scrollToBottom
+        //   alwaysShowSend
+        //   user={{
+        //     _id: 1,
+        //   }}
+        // />
+      }
+      <Modal animationType="fade" transparent={true} visible={visibleModal}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Image

@@ -14,16 +14,6 @@ export default function StackContact() {
         component={Contact}
         options={{headerShown: false}}
       />
-      <Stack.Screen
-        name="ChatDetail"
-        component={ChatDetail}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
-        name="Call"
-        component={Call}
-        options={{headerShown: false}}
-      />
     </Stack.Navigator>
   );
 }

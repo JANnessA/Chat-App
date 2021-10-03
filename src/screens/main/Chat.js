@@ -55,7 +55,7 @@ export default function Chat({navigation}) {
           <Ionicons
             name={'search-outline'}
             size={25}
-            color={'#8660cc'}
+            color={'#143375'}
             style={styles.searchImg}
           />
         </TouchableOpacity>
@@ -75,7 +75,7 @@ export default function Chat({navigation}) {
           <Ionicons
             name={'close-circle-outline'}
             size={25}
-            color={'#8660cc'}
+            color={'#143375'}
             style={styles.imgClose}
           />
         </TouchableOpacity>
@@ -140,8 +140,8 @@ const styles = StyleSheet.create({
   },
   contaiSearch: {
     flexDirection: 'row',
-    width: 280,
-    height: 40,
+    width: 290,
+    height: 50,
     borderWidth: 1,
     borderRadius: 5,
     borderColor: '#143375',
@@ -149,6 +149,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: 220,
+    fontSize: 17,
   },
   contaiIcon: {
     justifyContent: 'center',

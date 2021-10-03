@@ -14,16 +14,18 @@ export default function StackChat() {
         component={Chat}
         options={{headerShown: false}}
       />
-      <Stack.Screen
-        name="ChatDetail"
-        component={ChatDetail}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
-        name="Call"
-        component={Call}
-        options={{headerShown: false}}
-      />
+      {
+        //   <Stack.Screen
+        //   name="ChatDetail"
+        //   component={ChatDetail}
+        //   options={{headerShown: false}}
+        // />
+        // <Stack.Screen
+        //   name="Call"
+        //   component={Call}
+        //   options={{headerShown: false}}
+        // />
+      }
     </Stack.Navigator>
   );
 }
