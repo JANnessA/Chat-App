@@ -8,12 +8,16 @@ import {
   Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {GiftedChat} from 'react-native-gifted-chat';
+import {GiftedChat, Bubble, Send} from 'react-native-gifted-chat';
 
 export default function ChatDetail({route, navigation}) {
   const [visibleModal, setVisibleModal] = useState(false);
+  const [visibleModalCall, setVisibleModalCall] = useState(false);
   const {item} = route.params;
   const [messages, setMessages] = useState([]);
+
+  //ở đây đang ví dụ id là 2 (mình), get api rồi cậu xét rõ thêm nhé
+  let id = 1;
 
   useEffect(() => {
     setMessages([
@@ -35,6 +39,25 @@ export default function ChatDetail({route, navigation}) {
       GiftedChat.append(previousMessages, messages),
     );
   }, []);
+
+  const renderBubble = props => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: 'green',
+          },
+        }}
+        textStyle={{
+          right: {
+            color: '#fff',
+          },
+        }}
+      />
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -50,12 +73,20 @@ export default function ChatDetail({route, navigation}) {
             source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
             style={styles.img}
           />
-          <Text style={styles.name}>{item.item.username}</Text>
+          {
+            //Đoạn này cần get API về so sánh type để lấy tên của đoạn chat
+            // {type = cá nhân ? item.item.username : item}
+          }
+          <Text style={styles.name} numberOfLines={1}>
+            {item}
+          </Text>
         </TouchableOpacity>
         <View style={styles.flex}>
           <TouchableOpacity
             style={styles.buttonBack}
-            onPress={() => navigation.navigate('Call')}>
+            onPress={() => {
+              setVisibleModalCall(true);
+            }}>
             <Ionicons name={'call-outline'} size={30} color={'#fff'} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonBack}>
@@ -68,17 +99,18 @@ export default function ChatDetail({route, navigation}) {
           </TouchableOpacity>
         </View>
       </View>
+      <GiftedChat
+        messages={messages}
+        onSend={messages => onSend(messages)}
+        scrollToBottom
+        alwaysShowSend
+        renderBubble={renderBubble}
+        user={{
+          _id: 1,
+        }}
+      />
       {
-        //bỏ chú thích
-        //   <GiftedChat
-        //   messages={messages}
-        //   onSend={messages => onSend(messages)}
-        //   scrollToBottom
-        //   alwaysShowSend
-        //   user={{
-        //     _id: 1,
-        //   }}
-        // />
+        //modal 1: modal setting
       }
       <Modal animationType="fade" transparent={true} visible={visibleModal}>
         <View style={styles.centeredView}>
@@ -99,6 +131,50 @@ export default function ChatDetail({route, navigation}) {
               }>
               <Text style={styles.txtButton}>Xem trang cá nhân</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {
+        //modal 2: modal call
+      }
+      <Modal animationType="none" transparent={true} visible={visibleModalCall}>
+        <View style={styles.centeredViewC}>
+          <View style={styles.modalViewC}>
+            <Text style={[styles.name, {color: '#000'}]} numberOfLines={1}>
+              {item}
+            </Text>
+            {
+              //đoạn này kiểm tra id là mình hay là người khác, nếu là người khác thì dùng đoạn này còn là mình thì dùng đoạn sau
+              id === 1 ? (
+                <View style={styles.modalViewCC}>
+                  <TouchableOpacity
+                    style={styles.buttonCall}
+                    onPress={() => navigation.navigate('Call')}>
+                    <Image
+                      source={require('../../assets/img/call.png')}
+                      style={styles.call}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.buttonCall}
+                    onPress={() => setVisibleModalCall(false)}>
+                    <Image
+                      source={require('../../assets/img/decline.png')}
+                      style={styles.call}
+                    />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <>
+                  <TouchableOpacity style={styles.buttonCall}>
+                    <Image
+                      source={require('../../assets/img/decline.png')}
+                      style={styles.call}
+                    />
+                  </TouchableOpacity>
+                </>
+              )
+            }
           </View>
         </View>
       </Modal>
@@ -127,8 +203,19 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
   },
-  contaiName: {flexDirection: 'row', marginLeft: 5, alignItems: 'center'},
-  name: {fontSize: 18, marginLeft: 10, color: '#fff'},
+  contaiName: {
+    flexDirection: 'row',
+    marginLeft: 5,
+    alignItems: 'center',
+    width: 200,
+  },
+  name: {
+    fontSize: 18,
+    marginLeft: 10,
+    color: '#fff',
+    flexShrink: 1,
+    width: '100%',
+  },
   flex: {
     flexDirection: 'row',
     position: 'absolute',
@@ -158,4 +245,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   txtButton: {fontSize: 15, color: '#fff'},
+  centeredViewC: {padding: 5, position: 'absolute', right: 5, top: 60},
+  modalViewC: {
+    width: 200,
+    height: 60,
+    flexDirection: 'row',
+    backgroundColor: '#ddd',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 10,
+  },
+  buttonCall: {width: 30, height: 30, marginHorizontal: 5},
+  call: {width: 30, height: 30},
+  modalViewCC: {
+    flexDirection: 'row',
+  },
 });
