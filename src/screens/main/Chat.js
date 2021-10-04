@@ -91,7 +91,7 @@ export default function Chat({navigation}) {
         <ActionButton.Item
           buttonColor="#143375"
           title="Create group chat"
-          onPress={() => setModalCreateGroup(true)}>
+          onPress={() => navigation.navigate('CreateGroup')}>
           <Ionicons
             name={'add-outline'}
             size={25}
@@ -100,34 +100,6 @@ export default function Chat({navigation}) {
           />
         </ActionButton.Item>
       </ActionButton>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalCreateGroup}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <TextInput
-              style={styles.txtInput}
-              value={addMember}
-              multiline={true}
-              onChangeText={t => {
-                setAddMember(t);
-              }}
-              placeholderTextColor="#aaa"
-              placeholder="Group name"
-              keyboardType="default"
-            />
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.txtButton}>Create Group</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.buttonClose}
-              onPress={() => setModalCreateGroup(false)}>
-              <Ionicons name={'close-outline'} size={30} color={'#000'} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

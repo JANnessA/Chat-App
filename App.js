@@ -8,6 +8,8 @@ import ChatDetail from './src/screens/main/ChatDetail';
 import Call from './src/screens/main/Call';
 import FriendRequest from './src/screens/main/FriendRequest';
 import FriendProfile from './src/screens/main/friendProfile';
+import CreateGroup from './src/screens/main/createGroup';
+import VideoCall from './src/screens/main/VideoCall';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -54,6 +56,16 @@ export default function App() {
         <Stack.Screen
           name="FriendProfile"
           component={FriendProfile}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="CreateGroup"
+          component={CreateGroup}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="VideoCall"
+          component={VideoCall}
           options={{headerShown: false}}
         />
       </Stack.Navigator>
