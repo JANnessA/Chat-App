@@ -64,9 +64,7 @@ export default function Login({navigation}) {
           keyboardType="default"
           secureTextEntry
         />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('TopTab')}>
+        <TouchableOpacity style={styles.button} onPress={handleLoggin}>
           <Text style={styles.txtButton}>Đăng nhập</Text>
         </TouchableOpacity>
         <TouchableOpacity

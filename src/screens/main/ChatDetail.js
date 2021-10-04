@@ -78,7 +78,7 @@ export default function ChatDetail({route, navigation}) {
             // {type = cá nhân ? item.item.username : item}
           }
           <Text style={styles.name} numberOfLines={1}>
-            {item}
+            Tuan
           </Text>
         </TouchableOpacity>
         <View style={styles.flex}>
