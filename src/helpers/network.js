@@ -1,6 +1,5 @@
 import {BASE_API_URL} from '../configs';
 import {API} from './api';
-
 export function login(params) {
   return API.fetch({
     method: 'POST',

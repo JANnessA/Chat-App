@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
 import _ from 'lodash';
+import {Alert} from 'react-native';
 
 class API {
   static async headers() {
@@ -54,6 +55,7 @@ class API {
           errorMessages = 'Something went wrong, please try again later.';
         }
       }
+      Alert.alert(errorMessages);
 
       throw errorMessages;
     });
