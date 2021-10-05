@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,16 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-community/async-storage';
-import {login} from '../../helpers/network';
+import {login, getAuth} from '../../helpers/network';
+import io from 'socket.io-client';
+import {SOCKET_URL} from '../../configs';
+import Context from '../../helpers/context';
 
 export default function Login({navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const {setSocket, setUser} = useContext(Context);
 
   const handleLoggin = async () => {
     if (!phone || !password) {
@@ -29,7 +33,10 @@ export default function Login({navigation}) {
       return;
     }
     try {
+      setSocket(io(`${SOCKET_URL}/realtime?token=${res.data.token}`));
       await AsyncStorage.setItem('@token', res.data.token);
+      const user = await getAuth();
+      setUser(user.data);
       navigation.navigate('TopTab');
     } catch (e) {
       console.error(e);

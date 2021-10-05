@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Image,
@@ -11,16 +11,43 @@ import {
 import {TextInput} from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ActionButton from 'react-native-action-button';
-
-import FakeData from '../../fakedata';
+import {getConversations} from '../../helpers/network';
+import {useIsFocused} from '@react-navigation/native';
+import Context from '../../helpers/context';
+import {SocketEvent} from '../../configs';
 
 export default function Chat({navigation}) {
   const [valueTextInput, setValueTextInput] = useState('');
-  const [modalCreateGroup, setModalCreateGroup] = useState(false);
-  const [addMember, setAddMember] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [count, setCount] = useState(0);
+  const isFocused = useIsFocused();
+  const {socket} = useContext(Context);
+
+  useEffect(() => {
+    getData();
+  }, [isFocused, count]);
+
+  useEffect(() => {
+    socket.on(SocketEvent.SEND_MESSAGE, data => {
+      setCount(count + 1);
+    });
+    return () => {
+      socket.off(SocketEvent.SEND_MESSAGE);
+    };
+  }, []);
+
+  const getData = async () => {
+    const {data, success} = await getConversations({
+      pageSize: 1000,
+      pageIndex: 1,
+    });
+    if (success) {
+      setConversations(data);
+    }
+  };
 
   //render item in list
-  function renderItem({item}) {
+  function renderItem(item) {
     return (
       <View style={styles.contaiItem}>
         <TouchableOpacity
@@ -33,14 +60,17 @@ export default function Chat({navigation}) {
           }>
           <View style={styles.leftPart}>
             <Image
-              source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
+              source={
+                item.item.avatar ||
+                require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+              }
               style={styles.img}
             />
           </View>
           <View style={styles.rightPart}>
-            <Text style={styles.name}>{item.item.username}</Text>
+            <Text style={styles.name}>{item.item.name}</Text>
             <Text style={styles.txtItem} numberOfLines={1}>
-              {item.item.lastMes}
+              {item.item.lastMessage?.message}
             </Text>
           </View>
         </TouchableOpacity>
@@ -81,9 +111,9 @@ export default function Chat({navigation}) {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={FakeData}
-        renderItem={item => renderItem({item})}
-        keyExtractor={item => item.id}
+        data={conversations}
+        renderItem={item => renderItem(item)}
+        keyExtractor={item => item._id}
         showsVerticalScrollIndicator={false}
         style={{marginTop: 10}}
       />

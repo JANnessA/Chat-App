@@ -16,6 +16,13 @@ export function signUp(params) {
   }).then(response => response.data);
 }
 
+export function getAuth() {
+  return API.fetch({
+    method: 'GET',
+    url: `${BASE_API_URL}/user/me`,
+  }).then(response => response.data);
+}
+
 export function searchPhone(params) {
   return API.fetch({
     method: 'GET',

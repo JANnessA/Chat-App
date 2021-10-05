@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
 import {
   View,
   Text,
@@ -9,36 +9,86 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {GiftedChat, Bubble, Send} from 'react-native-gifted-chat';
+import Context from '../../helpers/context';
+import {
+  getMessages,
+  sendMessages,
+  createConversation,
+} from '../../helpers/network';
+import {SocketEvent} from '../../configs';
 
 export default function ChatDetail({route, navigation}) {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleModalCall, setVisibleModalCall] = useState(false);
   const {item} = route.params;
   const [messages, setMessages] = useState([]);
+  const {socket, user} = useContext(Context);
+  const [conversationId, setConversationId] = useState(null);
 
-  //ở đây đang ví dụ id là 2 (mình), get api rồi cậu xét rõ thêm nhé
-  let id = 1;
+  const convertMessage = msg => {
+    return {
+      _id: msg._id,
+      text: msg.message,
+      createdAt: msg.createdAt,
+      user: {
+        _id: msg.sender._id,
+        name: msg.sender.fullname,
+        avatar: msg.sender.avatar,
+      },
+    };
+  };
+
+  const getData = async () => {
+    const {data, success} = await getMessages({
+      pageSize: 1000,
+      pageIndex: 1,
+      conversationId: conversationId,
+    });
+    if (success) {
+      setMessages(data.map(e => convertMessage(e)));
+    }
+  };
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ]);
-  }, []);
+    if (item.fromContact) {
+      if (item.item.conversationId) {
+        setConversationId(item.item.conversationId);
+      }
+    } else {
+      setConversationId(item.item._id);
+    }
+    if (conversationId) {
+      getData();
+    }
+    socket.on(SocketEvent.SEND_MESSAGE, data => {
+      if (data.message.conversationId === conversationId) {
+        setMessages(previousMessages =>
+          GiftedChat.append(previousMessages, [convertMessage(data.message)]),
+        );
+      }
+    });
+    return () => {
+      socket.off(SocketEvent.SEND_MESSAGE);
+    };
+  }, [conversationId]);
 
-  const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, messages),
-    );
-  }, []);
+  const onSend = useCallback(
+    async (msg = []) => {
+      let res;
+      if (!conversationId) {
+        res = await createConversation({members: [item.item.userId]});
+        if (res.success) {
+          setConversationId(res.data._id);
+        }
+      }
+      await sendMessages({
+        message: msg[0].text,
+        type: 1,
+        conversationId: conversationId || res.data._id,
+      });
+    },
+    [conversationId],
+  );
 
   const renderBubble = props => {
     return (
@@ -73,12 +123,8 @@ export default function ChatDetail({route, navigation}) {
             source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
             style={styles.img}
           />
-          {
-            //Đoạn này cần get API về so sánh type để lấy tên của đoạn chat
-            // {type = cá nhân ? item.item.username : item}
-          }
           <Text style={styles.name} numberOfLines={1}>
-            Tuan
+            {item.item.name}
           </Text>
         </TouchableOpacity>
         <View style={styles.flex}>
@@ -101,12 +147,12 @@ export default function ChatDetail({route, navigation}) {
       </View>
       <GiftedChat
         messages={messages}
-        onSend={messages => onSend(messages)}
+        onSend={msg => onSend(msg)}
         scrollToBottom
         alwaysShowSend
         renderBubble={renderBubble}
         user={{
-          _id: 1,
+          _id: user._id,
         }}
       />
       {
@@ -145,7 +191,7 @@ export default function ChatDetail({route, navigation}) {
             </Text>
             {
               //đoạn này kiểm tra id là mình hay là người khác, nếu là người khác thì dùng đoạn này còn là mình thì dùng đoạn sau
-              id === 1 ? (
+              1 === 1 ? (
                 <View style={styles.modalViewCC}>
                   <TouchableOpacity
                     style={styles.buttonCall}

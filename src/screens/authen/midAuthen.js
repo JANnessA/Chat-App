@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,29 @@ import {
   ImageBackground,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {getAuth} from '../../helpers/network';
+import AsyncStorage from '@react-native-community/async-storage';
+import Context from '../../helpers/context';
+import io from 'socket.io-client';
+import {SOCKET_URL} from '../../configs';
 
 export default function MidAuthen({navigation}) {
+  const {setSocket, setUser} = useContext(Context);
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const data = await getAuth();
+    if (data.success) {
+      setUser(data.data);
+      try {
+        const token = await AsyncStorage.getItem('@token');
+        setSocket(io(`${SOCKET_URL}/realtime?token=${token}`));
+        navigation.navigate('TopTab');
+      } catch (e) {}
+    }
+  };
   return (
     <ImageBackground
       source={require('../../assets/img/496ecb14589707.562865d064f9e.png')}
@@ -39,7 +60,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   contaiTitle: {justifyContent: 'center', alignItems: 'center', flex: 1.5},
-  title: {color: '#fff', fontSize: 45, fontFamily: 'GrechenFuemen-Regular'},
+  title: {color: '#fff', fontSize: 45, fontFamily: 'Cochin'},
   body: {flex: 2, alignItems: 'center'},
   button: {
     width: 200,

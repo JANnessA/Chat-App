@@ -1,10 +1,29 @@
-import React from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
-import fakedata from '../../fakedata';
+import {getAuth} from '../../helpers/network';
+import AsyncStorage from '@react-native-community/async-storage';
+import Context from '../../helpers/context';
 
 export default function Profile({navigation}) {
-  const data = fakedata[1];
-  console.log(data);
+  const {user, socket} = useContext(Context);
+  // const [data, setData] = useState({});
+  // useEffect(() => {
+  //   setUserData();
+  // }, []);
+
+  // const setUserData = async () => {
+  //   const res = await getAuth();
+  //   if (res.success) {
+  //     setData(res.data);
+  //   }
+  // };
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('@token');
+      socket.disconnect();
+      navigation.navigate('Login');
+    } catch (e) {}
+  };
   return (
     <View style={styles.container}>
       <Image
@@ -12,20 +31,20 @@ export default function Profile({navigation}) {
         style={styles.avata}
       />
       <View style={styles.infor}>
-        <Text style={styles.txtInfor}>{data.username}</Text>
+        <Text style={styles.txtInfor}>{user.fullname}</Text>
       </View>
+      {user.email && (
+        <View style={styles.infor}>
+          <Text style={styles.txtInfor}>{user.email}</Text>
+        </View>
+      )}
       <View style={styles.infor}>
-        <Text style={styles.txtInfor}>{data.email}</Text>
-      </View>
-      <View style={styles.infor}>
-        <Text style={styles.txtInfor}>{data.phone}</Text>
+        <Text style={styles.txtInfor}>{user.phone}</Text>
       </View>
       <TouchableOpacity
         style={[styles.infor, {backgroundColor: '#143375'}]}
-        onPress={() => navigation.navigate('EditProfile')}>
-        <Text style={[styles.txtInfor, {color: '#fff'}]}>
-          Chỉnh sửa thông tin
-        </Text>
+        onPress={handleLogout}>
+        <Text style={[styles.txtInfor, {color: '#fff'}]}>Đăng xuất</Text>
       </TouchableOpacity>
     </View>
   );

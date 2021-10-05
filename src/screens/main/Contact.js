@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Image,
@@ -12,15 +12,33 @@ import {TextInput} from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ActionButton from 'react-native-action-button';
 
-import FakeData from '../../fakedata';
+import {useIsFocused} from '@react-navigation/native';
+import {getContacts, searchPhone} from '../../helpers/network';
 
 export default function Contact({navigation}) {
   const [valueTextInput, setValueTextInput] = useState('');
-  const [modalCreateGroup, setModalCreateGroup] = useState(false);
-  const [addMember, setAddMember] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [totalRequest, setTotalRequest] = useState(0);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    getData();
+  }, [isFocused]);
+
+  const getData = async () => {
+    const {data, success} = await getContacts({
+      pageSize: 1000,
+      pageIndex: 1,
+      status: 1,
+    });
+    if (success) {
+      setContacts(data.contacts);
+      setTotalRequest(data.totalRequest);
+    }
+  };
 
   //render item in list
-  function renderItem({item}) {
+  function renderItem(item) {
     return (
       <View style={styles.contaiItem}>
         <TouchableOpacity
@@ -28,17 +46,20 @@ export default function Contact({navigation}) {
           onPress={() =>
             navigation.navigate({
               name: 'ChatDetail',
-              params: {item: item},
+              params: {item: {...item, fromContact: true}},
             })
           }>
           <View style={styles.leftPart}>
             <Image
-              source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
+              source={
+                item.item.avatar ||
+                require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+              }
               style={styles.img}
             />
           </View>
           <View style={styles.rightPart}>
-            <Text style={styles.name}>{item.item.username}</Text>
+            <Text style={styles.name}>{item.item.name}</Text>
             <Text style={styles.txtItem} numberOfLines={1}>
               {item.item.phone}
             </Text>
@@ -83,12 +104,14 @@ export default function Contact({navigation}) {
       <TouchableOpacity
         style={styles.contaiFriendRequest}
         onPress={() => navigation.navigate('FriendRequest')}>
-        <Text style={styles.titleSendRequest}>Số lời mời kết bạn (0)</Text>
+        <Text style={styles.titleSendRequest}>
+          Lời mời kết bạn ({totalRequest})
+        </Text>
       </TouchableOpacity>
       <FlatList
-        data={FakeData}
-        renderItem={item => renderItem({item})}
-        keyExtractor={item => item.id}
+        data={contacts}
+        renderItem={item => renderItem(item)}
+        keyExtractor={item => item._id}
         showsVerticalScrollIndicator={false}
         initialNumToRender={10}
         style={{marginTop: 10}}

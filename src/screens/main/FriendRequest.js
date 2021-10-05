@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,35 +7,66 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from 'react-native';
-import fakeData from '../../fakedata';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {getContacts, respondContact} from '../../helpers/network';
 
 export default function FriendRequest({navigation}) {
   const [valueTextInput, setValueTextInput] = useState('');
-  function renderItem({item}) {
+  const [friendRequest, setFriendRequest] = useState([]);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const handleRespond = async (contactId, respond) => {
+    const res = await respondContact({contactId, respond});
+    if (res.success) {
+      Alert.alert('Thành công');
+      setFriendRequest(friendRequest.filter(e => e._id !== contactId));
+    }
+  };
+
+  const getData = async () => {
+    const {data, success} = await getContacts({
+      pageSize: 1000,
+      pageIndex: 1,
+      status: 0,
+    });
+    if (success) {
+      setFriendRequest(data.contacts);
+    }
+  };
+
+  function renderItem(item) {
     return (
       <View style={styles.contaiItem}>
         <TouchableOpacity
           style={{flexDirection: 'row', alignItems: 'center'}}
           onPress={() => navigation.navigate('StackProfile')}>
           <Image
-            source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
+            source={
+              item.item.avatar ||
+              require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+            }
             style={styles.img}
           />
-          <Text style={styles.name}>{item.item.username}</Text>
+          <Text style={styles.name}>{item.item.name}</Text>
         </TouchableOpacity>
         <View style={styles.introduce}>
-          <Text style={styles.txIntro}>
-            Rất vui được làm quen với bạn, mình là {item.item.username}
-          </Text>
+          <Text style={styles.txIntro}>{item.item.phone}</Text>
         </View>
         <View style={styles.inline}>
-          <TouchableOpacity style={styles.buttonAc}>
-            <Text style={styles.txtAc}>Accept</Text>
+          <TouchableOpacity
+            style={styles.buttonAc}
+            onPress={() => handleRespond(item.item._id, 1)}>
+            <Text style={styles.txtAc}>Đồng ý</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonDe}>
-            <Text style={styles.txtAc}>Decline</Text>
+          <TouchableOpacity
+            style={styles.buttonDe}
+            onPress={() => handleRespond(item.item._id, 0)}>
+            <Text style={styles.txtAc}>Từ chối</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -85,9 +116,9 @@ export default function FriendRequest({navigation}) {
         </View>
       </View>
       <FlatList
-        data={fakeData}
-        renderItem={item => renderItem({item})}
-        keyExtractor={item => item.id}
+        data={friendRequest}
+        renderItem={item => renderItem(item)}
+        keyExtractor={item => item._id}
         showsVerticalScrollIndicator={false}
         initialNumToRender={10}
         style={{marginTop: 10}}

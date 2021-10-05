@@ -5,15 +5,12 @@ import {Alert} from 'react-native';
 
 class API {
   static async headers() {
-    const headers = {
+    const token = await this.getAuthToken();
+    return {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      Authorization: 'Bearer ' + token,
     };
-    const token = await this.getAuthToken();
-    if (token) {
-      headers.Authorization = 'Bearer' + token;
-    }
-    return headers;
   }
 
   static getAuthToken = async () => {
@@ -28,9 +25,9 @@ class API {
     }
   };
 
-  static fetch(options) {
+  static async fetch(options) {
     if (options.authorized != false) {
-      options.headers = _.merge(this.headers(), options.headers);
+      options.headers = _.merge(await this.headers(), options.headers);
     }
 
     return axios(options).catch(errorResponse => {

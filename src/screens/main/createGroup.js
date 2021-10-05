@@ -10,7 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import _, {add} from 'lodash';
 import FakeData from '../../fakedata';
 
 export default function CreateGroup({navigation}) {
@@ -31,6 +31,22 @@ export default function CreateGroup({navigation}) {
     //   : list.concat(name);
   }
 
+  //const fakeData1 = ['jannn1', 'jannn2'];
+  const [data1, setData1] = useState([]);
+  const addItem = (arr, item) => {
+    const check = arr.find(x => x.username === item.username);
+    if (!check) {
+      arr.push(item);
+      setData1(arr);
+    } else {
+      arr.splice(_.findIndex(arr, {username: item.username}), 1);
+      setData1(arr);
+    }
+  };
+  const checkFind = () => {
+    console.log('data123', data1);
+  };
+
   function renderItem({item}) {
     return (
       <View style={styles.contaiItem}>
@@ -39,21 +55,18 @@ export default function CreateGroup({navigation}) {
         }
         <TouchableOpacity
           style={styles.buttonItem}
-          onPress={() => setList(list.concat(item.item.username))}>
+          onPress={() => {
+            console.log('item', item);
+            setList(list.concat(item.item.username));
+            addItem(data1, item.item);
+            checkFind();
+          }}>
           <View style={styles.leftPart}>
             <Image
               source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
               style={styles.img}
             />
             <Text style={styles.name}>{item.item.username}</Text>
-          </View>
-          <View style={styles.rightPart}>
-            <Ionicons
-              name={'stop-outline'}
-              size={25}
-              color={'#143375'}
-              style={styles.searchImg}
-            />
           </View>
         </TouchableOpacity>
       </View>
@@ -118,7 +131,14 @@ export default function CreateGroup({navigation}) {
         </View>
       </View>
       <View style={styles.resultV}>
-        <Text style={styles.list}>{list}</Text>
+        {data1?.map((item, index) => {
+          return (
+            <>
+              <Text style={styles.list}>{item.username}</Text>
+              {index !== data1.length - 1 && <Text>{' - '}</Text>}
+            </>
+          );
+        })}
       </View>
       <FlatList
         data={FakeData}
@@ -202,6 +222,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd',
     marginVertical: 10,
     padding: 12,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   list: {},
   contaiItem: {
