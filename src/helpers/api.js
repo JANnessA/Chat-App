@@ -5,15 +5,18 @@ import {Alert} from 'react-native';
 
 class API {
   static async headers() {
-    const token = this.getAuthToken();
-    return {
+    const headers = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: 'Bearer' + token,
     };
+    const token = await this.getAuthToken();
+    if (token) {
+      headers.Authorization = 'Bearer' + token;
+    }
+    return headers;
   }
 
-  getAuthToken = async () => {
+  static getAuthToken = async () => {
     try {
       const value = await AsyncStorage.getItem('@token');
       if (value !== null) {
