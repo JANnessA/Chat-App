@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,10 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-community/async-storage';
-import {signUp} from '../../helpers/network';
+import {signUp, getAuth} from '../../helpers/network';
+import {SOCKET_URL} from '../../configs';
+import Context from '../../helpers/context';
+import io from 'socket.io-client';
 
 export default function Register({navigation}) {
   // const [email, setEmail] = useState('');
@@ -18,6 +21,7 @@ export default function Register({navigation}) {
   const [fullname, setFullname] = useState('');
   const [rePass, setRePass] = useState('');
   const [phone, setPhone] = useState('');
+  const {setSocket, setUser} = useContext(Context);
 
   const handleSignup = async () => {
     if (!phone || !password) {
@@ -34,8 +38,10 @@ export default function Register({navigation}) {
       return;
     }
     try {
-      Alert.alert('Đăng ký thành công!');
+      setSocket(io(`${SOCKET_URL}/realtime?token=${res.data.token}`));
       await AsyncStorage.setItem('@token', res.data.token);
+      const user = await getAuth();
+      setUser(user.data);
       navigation.navigate('TopTab');
     } catch (e) {
       console.error(e);
