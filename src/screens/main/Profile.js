@@ -43,13 +43,6 @@ export default function Profile({navigation}) {
       //-----Link uri gửi lên server là uri: res.assets[0].uri----
       const source = response;
       console.log('res: ', source);
-      const formData = new FormData();
-      response.fileName = response.fileName
-        ? response.fileName
-        : Math.floor(Math.random() * Math.floor(999999999)) + '.jpg';
-      response.name = 'image';
-      formData.append('file', response);
-      console.log('formData', formData);
       // console.log('resAVA', res);
     });
   };

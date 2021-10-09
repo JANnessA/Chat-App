@@ -8,7 +8,7 @@ import {
   Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {GiftedChat, Bubble, Send} from 'react-native-gifted-chat';
+import {GiftedChat, Bubble, Send, Composer} from 'react-native-gifted-chat';
 import Context from '../../helpers/context';
 import {
   getMessages,
@@ -16,6 +16,7 @@ import {
   createConversation,
 } from '../../helpers/network';
 import {SocketEvent} from '../../configs';
+import * as ImagePicker from 'react-native-image-picker';
 
 export default function ChatDetail({route, navigation}) {
   const [visibleModal, setVisibleModal] = useState(false);
@@ -25,6 +26,48 @@ export default function ChatDetail({route, navigation}) {
   const {socket, user} = useContext(Context);
   const [conversationId, setConversationId] = useState(null);
   console.log('item=======', item);
+
+  const renderComposer = props => {
+    return (
+      <View style={{width: '80%', flexDirection: 'row'}}>
+        {
+          //sau khi chọn ảnh => gửi file res.assets[0].uri lên server
+        }
+        <TouchableOpacity onPress={chooseFile} style={styles.buttonCam}>
+          <Ionicons
+            name={'camera-outline'}
+            size={40}
+            color={'#143375'}
+            style={styles.imgClose}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonCam} onPress={chooseFile}>
+          <Ionicons
+            name={'videocam-outline'}
+            size={40}
+            color={'#143375'}
+            style={styles.imgClose}
+          />
+        </TouchableOpacity>
+        <Composer {...props} />
+      </View>
+    );
+  };
+
+  const chooseFile = () => {
+    const options = {
+      mediaType: 'any',
+      includeBase64: false,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+    ImagePicker?.launchImageLibrary(options, async response => {
+      //-----Link uri gửi lên server là uri: res.assets[0].uri----
+      const source = response;
+      console.log('res: ', source);
+      // console.log('resAVA', res);
+    });
+  };
 
   const convertMessage = msg => {
     return {
@@ -154,6 +197,7 @@ export default function ChatDetail({route, navigation}) {
         onSend={msg => onSend(msg)}
         scrollToBottom
         alwaysShowSend
+        renderComposer={renderComposer}
         renderBubble={renderBubble}
         user={{
           _id: user._id,
@@ -309,5 +353,11 @@ const styles = StyleSheet.create({
   call: {width: 30, height: 30},
   modalViewCC: {
     flexDirection: 'row',
+  },
+  buttonCam: {
+    height: 50,
+    width: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
