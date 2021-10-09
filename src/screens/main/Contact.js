@@ -116,6 +116,30 @@ export default function Contact({navigation}) {
         initialNumToRender={10}
         style={{marginTop: 10}}
       />
+      <ActionButton buttonColor="#143375">
+        <ActionButton.Item
+          buttonColor="#143375"
+          title="Tìm kiếm bạn bè"
+          onPress={() => navigation.navigate('FindFriend')}>
+          <Ionicons
+            name={'search-outline'}
+            size={25}
+            color={'#fff'}
+            style={styles.searchImg}
+          />
+        </ActionButton.Item>
+        <ActionButton.Item
+          buttonColor="#143375"
+          title="Tìm bạn bè từ số điện thoại trong danh bạ"
+          onPress={() => navigation.navigate('FindFriendFromContact')}>
+          <Ionicons
+            name={'browsers-outline'}
+            size={25}
+            color={'#fff'}
+            style={styles.searchImg}
+          />
+        </ActionButton.Item>
+      </ActionButton>
     </View>
   );
 }

@@ -24,6 +24,7 @@ export default function ChatDetail({route, navigation}) {
   const [messages, setMessages] = useState([]);
   const {socket, user} = useContext(Context);
   const [conversationId, setConversationId] = useState(null);
+  console.log('item=======', item);
 
   const convertMessage = msg => {
     return {
@@ -70,6 +71,7 @@ export default function ChatDetail({route, navigation}) {
     return () => {
       socket.off(SocketEvent.SEND_MESSAGE);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
 
   const onSend = useCallback(
@@ -87,6 +89,7 @@ export default function ChatDetail({route, navigation}) {
         conversationId: conversationId || res.data._id,
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [conversationId],
   );
 
@@ -108,6 +111,7 @@ export default function ChatDetail({route, navigation}) {
     );
   };
 
+  let userIDD = 1;
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -124,7 +128,7 @@ export default function ChatDetail({route, navigation}) {
             style={styles.img}
           />
           <Text style={styles.name} numberOfLines={1}>
-            {item.item.name}
+            {item?.item?.name}
           </Text>
         </TouchableOpacity>
         <View style={styles.flex}>
@@ -187,11 +191,11 @@ export default function ChatDetail({route, navigation}) {
         <View style={styles.centeredViewC}>
           <View style={styles.modalViewC}>
             <Text style={[styles.name, {color: '#000'}]} numberOfLines={1}>
-              {item}
+              {item?.item?.name}
             </Text>
             {
               //đoạn này kiểm tra id là mình hay là người khác, nếu là người khác thì dùng đoạn này còn là mình thì dùng đoạn sau
-              1 === 1 ? (
+              userIDD === 1 ? (
                 <View style={styles.modalViewCC}>
                   <TouchableOpacity
                     style={styles.buttonCall}

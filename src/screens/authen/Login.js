@@ -60,7 +60,7 @@ export default function Login({navigation}) {
           value={phone}
           placeholderTextColor="#aaa"
           placeholder="Phone"
-          keyboardType="default"
+          keyboardType="numeric"
         />
         <TextInput
           style={styles.input}

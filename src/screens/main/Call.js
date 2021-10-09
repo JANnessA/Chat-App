@@ -39,8 +39,14 @@ export default function Call({navigation}) {
   return (
     <View style={styles.container}>
       <View>
+        {
+          //phần data trong flatlist, giao diện nếu là một người thì thay là
+          //data, còn nếu gọi nhóm thì thay là FakeData
+          //còn thực tế kết quả trả về phải là dạng array, bên trong có
+          //bao nhiêu người thì nó sẽ tự hiển thị hình
+        }
         <FlatList
-          data={FakeData}
+          data={data}
           renderItem={item => renderItem({item})}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
