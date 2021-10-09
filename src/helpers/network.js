@@ -87,10 +87,26 @@ export function getMessages(params) {
   }).then(response => response.data);
 }
 
-export function sendMessages(params) {
+export function startCall(params) {
   return API.fetch({
     method: 'POST',
-    url: `${BASE_API_URL}/message`,
+    url: `${BASE_API_URL}/call/start`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function declineCall(params) {
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/call/decline`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function endCalling(params) {
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/call/end`,
     data: params,
   }).then(response => response.data);
 }

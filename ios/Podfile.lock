@@ -1,4 +1,5 @@
 PODS:
+  - AgoraRtcEngine_iOS (2.9.1)
   - boost-for-react-native (1.63.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
@@ -269,6 +270,11 @@ PODS:
     - React-jsi (= 0.65.1)
     - React-perflogger (= 0.65.1)
   - React-jsinspector (0.65.1)
+  - react-native-agora (2.9.1-alpha.7):
+    - AgoraRtcEngine_iOS (= 2.9.1)
+    - React
+  - react-native-image-picker (4.1.1):
+    - React-Core
   - react-native-pager-view (5.4.4):
     - React-Core
   - react-native-safe-area-context (3.3.2):
@@ -422,6 +428,8 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-agora (from `../node_modules/react-native-agora`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -447,6 +455,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AgoraRtcEngine_iOS
     - boost-for-react-native
     - CocoaAsyncSocket
     - Flipper
@@ -494,6 +503,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-agora:
+    :path: "../node_modules/react-native-agora"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
@@ -540,6 +553,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  AgoraRtcEngine_iOS: b2eedd8f9ab47b71163f3285e836bd23feb43fff
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
@@ -569,6 +583,8 @@ SPEC CHECKSUMS:
   React-jsi: 12913c841713a15f64eabf5c9ad98592c0ec5940
   React-jsiexecutor: 43f2542aed3c26e42175b339f8d37fe3dd683765
   React-jsinspector: 41e58e5b8e3e0bf061fdf725b03f2144014a8fb0
+  react-native-agora: 675d6fe3aba144b2d054758f167dae13711ba47a
+  react-native-image-picker: 92f51a85a62c2d829dcbd0dda5af99e6f988a113
   react-native-pager-view: 5ab4d0b4b44d89f77310cb3eb8129745f274ce55
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   React-perflogger: fd28ee1f2b5b150b00043f0301d96bd417fdc339
@@ -595,4 +611,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 7f4cf38b047a557a675face6d732fd3928f105e4
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.2

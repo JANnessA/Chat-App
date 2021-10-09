@@ -70,5 +70,9 @@
       <string>Octicons.ttf</string>
       <string>Zocial.ttf</string>
     </array>
+	<key>NSCameraUsageDescription</key>
+<string>Yeu cau camera</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Yeu cau microphone</string>
 </dict>
 </plist>

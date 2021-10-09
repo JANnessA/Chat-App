@@ -1,40 +1,33 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Image,
-  FlatList,
   Dimensions,
 } from 'react-native';
-import FakeData from '../../fakedata';
 const numColumn = 2;
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
+import {SocketEvent} from '../../configs';
+import Context from '../../helpers/context';
 
-export default function Call({navigation}) {
-  let data = [
-    {
-      id: 1,
-      username: 'Jann',
-      phone: '0394567889',
-      email: 'tuyenletm31@gmail.com',
-      lastMes:
-        'To render multiple columns, use the numColumns prop. Using this approach instead of a flexWrap layout can prevent conflicts with the item height logic.',
-    },
-  ];
+import {declineCall} from '../../helpers/network';
 
-  function renderItem() {
-    return (
-      <View style={styles.containerItem}>
-        <Image
-          source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
-          style={styles.img}
-        />
-      </View>
-    );
-  }
+export default function Call({navigation, route}) {
+  const {caller, conversationId, vidMute} = route.params;
+  const {socket} = useContext(Context);
+
+  useEffect(() => {
+    socket.on(SocketEvent.DECLINE_CALL, data => {
+      navigation.goBack();
+      socket.off(SocketEvent.DECLINE_CALL);
+    });
+    return () => {
+      socket.off(SocketEvent.DECLINE_CALL);
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -45,23 +38,48 @@ export default function Call({navigation}) {
           //còn thực tế kết quả trả về phải là dạng array, bên trong có
           //bao nhiêu người thì nó sẽ tự hiển thị hình
         }
-        <FlatList
+        {/* <FlatList
           data={data}
           renderItem={item => renderItem({item})}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           style={{marginTop: 10}}
           numColumns={numColumn}
-        />
-        <View style={{alignItems: 'center'}}>
+        /> */}
+        <View style={styles.containerItem}>
+          <Image
+            source={
+              caller.avatar ||
+              require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+            }
+            style={styles.img}
+          />
+          <Text>
+            {caller.fullname} đang gọi {vidMute ? 'thoại' : 'video'} cho bạn
+          </Text>
+        </View>
+        <View
+          style={{alignItems: 'center', flexDirection: 'row', marginTop: 50}}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() =>
+            onPress={() => {
+              navigation.pop();
               navigation.navigate({
-                name: 'ChatDetail',
-                params: {item: 'abc'},
-              })
-            }>
+                name: 'VideoCall',
+                params: {conversationId: conversationId, vidMute},
+              });
+            }}>
+            <Image
+              source={require('../../assets/img/call.png')}
+              style={styles.call}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              await declineCall({conversationId});
+              navigation.goBack();
+            }}>
             <Image
               source={require('../../assets/img/decline.png')}
               style={styles.call}

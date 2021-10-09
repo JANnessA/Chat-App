@@ -6,14 +6,18 @@ import {
   StyleSheet,
   Modal,
   Image,
+  Platform,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {GiftedChat, Bubble, Send, Composer} from 'react-native-gifted-chat';
 import Context from '../../helpers/context';
+import {requestCameraAndAudioPermission} from '../../helpers/permission';
 import {
   getMessages,
   sendMessages,
   createConversation,
+  startCall,
 } from '../../helpers/network';
 import {SocketEvent} from '../../configs';
 import * as ImagePicker from 'react-native-image-picker';
@@ -25,7 +29,37 @@ export default function ChatDetail({route, navigation}) {
   const [messages, setMessages] = useState([]);
   const {socket, user} = useContext(Context);
   const [conversationId, setConversationId] = useState(null);
-  console.log('item=======', item);
+
+  const handleCall = async vidMute => {
+    if (Platform.OS === 'android') {
+      requestCameraAndAudioPermission()
+        .then(_ => {
+          console.log('requested!');
+        })
+        .catch(() => {
+          Alert.alert('Không thể bật camera hoặc mic');
+        });
+    }
+    let res;
+    if (!conversationId) {
+      res = await createConversation({members: [item.item.userId]});
+      if (res.success) {
+        setConversationId(res.data._id);
+      }
+    }
+    const {success, message} = await startCall({
+      conversationId: conversationId || res.data._id,
+      vidMute,
+    });
+    if (success) {
+      navigation.navigate({
+        name: 'VideoCall',
+        params: {conversationId: conversationId || res.data._id, vidMute},
+      });
+    } else {
+      Alert.alert(message);
+    }
+  };
 
   const renderComposer = props => {
     return (
@@ -178,11 +212,15 @@ export default function ChatDetail({route, navigation}) {
           <TouchableOpacity
             style={styles.buttonBack}
             onPress={() => {
-              setVisibleModalCall(true);
+              handleCall(true);
             }}>
             <Ionicons name={'call-outline'} size={30} color={'#fff'} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonBack}>
+          <TouchableOpacity
+            style={styles.buttonBack}
+            onPress={() => {
+              handleCall(false);
+            }}>
             <Ionicons name={'videocam-outline'} size={30} color={'#fff'} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -291,6 +329,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 40,
     height: '100%',
+    paddingTop: 10,
   },
   img: {
     width: 40,
