@@ -19,17 +19,16 @@ import {SocketEvent} from '../../configs';
 export default function Chat({navigation}) {
   const [valueTextInput, setValueTextInput] = useState('');
   const [conversations, setConversations] = useState([]);
-  const [count, setCount] = useState(0);
   const isFocused = useIsFocused();
   const {socket} = useContext(Context);
 
   useEffect(() => {
     getData();
-  }, [isFocused, count]);
+  }, [isFocused]);
 
   useEffect(() => {
     socket.on(SocketEvent.SEND_MESSAGE, data => {
-      setCount(count + 1);
+      getData();
     });
     return () => {
       socket.off(SocketEvent.SEND_MESSAGE);
@@ -61,8 +60,9 @@ export default function Chat({navigation}) {
           <View style={styles.leftPart}>
             <Image
               source={
-                item.item.avatar ||
-                require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+                item.item.avatar
+                  ? {uri: item.item.avatar}
+                  : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
               }
               style={styles.img}
             />
@@ -70,7 +70,9 @@ export default function Chat({navigation}) {
           <View style={styles.rightPart}>
             <Text style={styles.name}>{item.item.name}</Text>
             <Text style={styles.txtItem} numberOfLines={1}>
-              {item.item.lastMessage?.message}
+              {item.item.lastMessage?.type === 2
+                ? 'Ảnh'
+                : item.item.lastMessage?.message}
             </Text>
           </View>
         </TouchableOpacity>
@@ -103,7 +105,7 @@ export default function Chat({navigation}) {
             setValueTextInput('');
           }}>
           <Ionicons
-            name={'close-circle-outline'}
+            name={'search-outline'}
             size={25}
             color={'#143375'}
             style={styles.imgClose}
@@ -117,7 +119,7 @@ export default function Chat({navigation}) {
         showsVerticalScrollIndicator={false}
         style={{marginTop: 10}}
       />
-      <ActionButton buttonColor="#143375">
+      <ActionButton useNativeFeedback={true} buttonColor="#143375">
         <ActionButton.Item
           buttonColor="#143375"
           title="Create group chat"

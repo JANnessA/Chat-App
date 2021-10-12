@@ -30,7 +30,7 @@ export function SearchBar(props) {
             setValueTextInput('');
           }}>
           <Ionicons
-            name={'close-circle-outline'}
+            name={'search-outline'}
             size={30}
             color={'#fff'}
             style={styles.imgClose}

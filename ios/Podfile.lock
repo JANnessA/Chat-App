@@ -273,6 +273,8 @@ PODS:
   - react-native-agora (2.9.1-alpha.7):
     - AgoraRtcEngine_iOS (= 2.9.1)
     - React
+  - react-native-contacts (7.0.2):
+    - React-Core
   - react-native-image-picker (4.1.1):
     - React-Core
   - react-native-pager-view (5.4.4):
@@ -429,6 +431,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-agora (from `../node_modules/react-native-agora`)
+  - react-native-contacts (from `../node_modules/react-native-contacts`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -505,6 +508,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-agora:
     :path: "../node_modules/react-native-agora"
+  react-native-contacts:
+    :path: "../node_modules/react-native-contacts"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-pager-view:
@@ -584,6 +589,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 43f2542aed3c26e42175b339f8d37fe3dd683765
   React-jsinspector: 41e58e5b8e3e0bf061fdf725b03f2144014a8fb0
   react-native-agora: 675d6fe3aba144b2d054758f167dae13711ba47a
+  react-native-contacts: bc424db19c3384e44e6a9d9da9a78ee51b0aa7a1
   react-native-image-picker: 92f51a85a62c2d829dcbd0dda5af99e6f988a113
   react-native-pager-view: 5ab4d0b4b44d89f77310cb3eb8129745f274ce55
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
@@ -609,6 +615,6 @@ SPEC CHECKSUMS:
   Yoga: aa0cb45287ebe1004c02a13f279c55a95f1572f4
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 7f4cf38b047a557a675face6d732fd3928f105e4
+PODFILE CHECKSUM: eaa01c622dea0bb4060cc431e12bfa4318102d95
 
 COCOAPODS: 1.11.2

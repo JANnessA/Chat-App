@@ -13,7 +13,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getContacts, respondContact} from '../../helpers/network';
 
 export default function FriendRequest({navigation}) {
-  const [valueTextInput, setValueTextInput] = useState('');
   const [friendRequest, setFriendRequest] = useState([]);
 
   useEffect(() => {
@@ -47,8 +46,9 @@ export default function FriendRequest({navigation}) {
           onPress={() => navigation.navigate('StackProfile')}>
           <Image
             source={
-              item.item.avatar ||
-              require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+              item.item.avatar
+                ? {uri: item.item.avatar}
+                : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
             }
             style={styles.img}
           />
@@ -83,37 +83,8 @@ export default function FriendRequest({navigation}) {
       <View style={{alignItems: 'center', marginHorizontal: 10}}>
         <Text style={styles.title}>LỜI MỜI KẾT BẠN </Text>
       </View>
-      <View style={{alignItems: 'center'}}>
-        <View style={styles.contaiSearch}>
-          <TouchableOpacity style={styles.contaiIcon}>
-            <Ionicons
-              name={'search-outline'}
-              size={25}
-              color={'#143375'}
-              style={styles.searchImg}
-            />
-          </TouchableOpacity>
-          <TextInput
-            value={valueTextInput}
-            style={styles.input}
-            onChangeText={t => setValueTextInput(t)}
-            placeholderTextColor="#aaa"
-            placeholder="Search"
-            keyboardType="default"
-          />
-          <TouchableOpacity
-            style={styles.contaiIcon}
-            onPress={() => {
-              setValueTextInput('');
-            }}>
-            <Ionicons
-              name={'close-circle-outline'}
-              size={25}
-              color={'#143375'}
-              style={styles.imgClose}
-            />
-          </TouchableOpacity>
-        </View>
+      <View style={{alignItems: 'center', marginTop: 10}}>
+        {!friendRequest.length && <Text>Bạn không có lời mời kết bạn nào</Text>}
       </View>
       <FlatList
         data={friendRequest}

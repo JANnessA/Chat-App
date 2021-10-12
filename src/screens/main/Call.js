@@ -21,7 +21,7 @@ export default function Call({navigation, route}) {
 
   useEffect(() => {
     socket.on(SocketEvent.DECLINE_CALL, data => {
-      navigation.goBack();
+      navigation.navigate('Chat');
       socket.off(SocketEvent.DECLINE_CALL);
     });
     return () => {
@@ -32,25 +32,12 @@ export default function Call({navigation, route}) {
   return (
     <View style={styles.container}>
       <View>
-        {
-          //phần data trong flatlist, giao diện nếu là một người thì thay là
-          //data, còn nếu gọi nhóm thì thay là FakeData
-          //còn thực tế kết quả trả về phải là dạng array, bên trong có
-          //bao nhiêu người thì nó sẽ tự hiển thị hình
-        }
-        {/* <FlatList
-          data={data}
-          renderItem={item => renderItem({item})}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-          style={{marginTop: 10}}
-          numColumns={numColumn}
-        /> */}
         <View style={styles.containerItem}>
           <Image
             source={
-              caller.avatar ||
-              require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+              caller.avatar
+                ? {uri: caller.avatar}
+                : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
             }
             style={styles.img}
           />
@@ -78,7 +65,7 @@ export default function Call({navigation, route}) {
             style={styles.button}
             onPress={async () => {
               await declineCall({conversationId});
-              navigation.goBack();
+              navigation.navigate('Chat');
             }}>
             <Image
               source={require('../../assets/img/decline.png')}

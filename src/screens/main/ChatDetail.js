@@ -15,16 +15,16 @@ import Context from '../../helpers/context';
 import {requestCameraAndAudioPermission} from '../../helpers/permission';
 import {
   getMessages,
-  sendMessages,
+  sendMessage,
   createConversation,
   startCall,
+  uploadFile,
 } from '../../helpers/network';
 import {SocketEvent} from '../../configs';
 import * as ImagePicker from 'react-native-image-picker';
 
 export default function ChatDetail({route, navigation}) {
   const [visibleModal, setVisibleModal] = useState(false);
-  const [visibleModalCall, setVisibleModalCall] = useState(false);
   const {item} = route.params;
   const [messages, setMessages] = useState([]);
   const {socket, user} = useContext(Context);
@@ -32,7 +32,7 @@ export default function ChatDetail({route, navigation}) {
 
   const handleCall = async vidMute => {
     if (Platform.OS === 'android') {
-      requestCameraAndAudioPermission()
+      await requestCameraAndAudioPermission()
         .then(_ => {
           console.log('requested!');
         })
@@ -69,16 +69,8 @@ export default function ChatDetail({route, navigation}) {
         }
         <TouchableOpacity onPress={chooseFile} style={styles.buttonCam}>
           <Ionicons
-            name={'camera-outline'}
-            size={40}
-            color={'#143375'}
-            style={styles.imgClose}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonCam} onPress={chooseFile}>
-          <Ionicons
-            name={'videocam-outline'}
-            size={40}
+            name={'image-outline'}
+            size={35}
             color={'#143375'}
             style={styles.imgClose}
           />
@@ -96,10 +88,32 @@ export default function ChatDetail({route, navigation}) {
       maxWidth: 200,
     };
     ImagePicker?.launchImageLibrary(options, async response => {
-      //-----Link uri gửi lên server là uri: res.assets[0].uri----
-      const source = response;
-      console.log('res: ', source);
-      // console.log('resAVA', res);
+      if (!response.didCancel) {
+        const formData = new FormData();
+        formData.append('files', {
+          uri: response.assets[0].uri,
+          type: response.assets[0].type,
+          name: response.assets[0].fileName,
+        });
+        const data = await uploadFile(formData);
+        if (data.data) {
+          let res;
+          if (!conversationId) {
+            res = await createConversation({members: [item.item.userId]});
+            if (res.success) {
+              setConversationId(res.data._id);
+            }
+          }
+          await sendMessage({
+            message: '',
+            image: data.data[0],
+            type: 2,
+            conversationId: conversationId || res.data._id,
+          });
+        } else {
+          Alert.alert(data.message);
+        }
+      }
     });
   };
 
@@ -113,6 +127,8 @@ export default function ChatDetail({route, navigation}) {
         name: msg.sender.fullname,
         avatar: msg.sender.avatar,
       },
+      image: msg.type === 2 ? msg.image : null,
+      system: msg.type === 4 ? true : false,
     };
   };
 
@@ -160,7 +176,7 @@ export default function ChatDetail({route, navigation}) {
           setConversationId(res.data._id);
         }
       }
-      await sendMessages({
+      await sendMessage({
         message: msg[0].text,
         type: 1,
         conversationId: conversationId || res.data._id,
@@ -188,7 +204,6 @@ export default function ChatDetail({route, navigation}) {
     );
   };
 
-  let userIDD = 1;
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -201,7 +216,11 @@ export default function ChatDetail({route, navigation}) {
           style={styles.contaiName}
           onPress={() => navigation.navigate('FriendProfile')}>
           <Image
-            source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
+            source={
+              item.item.avatar
+                ? {uri: item.item.avatar}
+                : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+            }
             style={styles.img}
           />
           <Text style={styles.name} numberOfLines={1}>
@@ -263,50 +282,6 @@ export default function ChatDetail({route, navigation}) {
               }>
               <Text style={styles.txtButton}>Xem trang cá nhân</Text>
             </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-      {
-        //modal 2: modal call
-      }
-      <Modal animationType="none" transparent={true} visible={visibleModalCall}>
-        <View style={styles.centeredViewC}>
-          <View style={styles.modalViewC}>
-            <Text style={[styles.name, {color: '#000'}]} numberOfLines={1}>
-              {item?.item?.name}
-            </Text>
-            {
-              //đoạn này kiểm tra id là mình hay là người khác, nếu là người khác thì dùng đoạn này còn là mình thì dùng đoạn sau
-              userIDD === 1 ? (
-                <View style={styles.modalViewCC}>
-                  <TouchableOpacity
-                    style={styles.buttonCall}
-                    onPress={() => navigation.navigate('Call')}>
-                    <Image
-                      source={require('../../assets/img/call.png')}
-                      style={styles.call}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.buttonCall}
-                    onPress={() => setVisibleModalCall(false)}>
-                    <Image
-                      source={require('../../assets/img/decline.png')}
-                      style={styles.call}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <>
-                  <TouchableOpacity style={styles.buttonCall}>
-                    <Image
-                      source={require('../../assets/img/decline.png')}
-                      style={styles.call}
-                    />
-                  </TouchableOpacity>
-                </>
-              )
-            }
           </View>
         </View>
       </Modal>

@@ -6,14 +6,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
-  Modal,
+  Platform,
+  Alert,
 } from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ActionButton from 'react-native-action-button';
 
 import {useIsFocused} from '@react-navigation/native';
-import {getContacts, searchPhone} from '../../helpers/network';
+import {getContacts} from '../../helpers/network';
+import {requestContactsPermission} from '../../helpers/permission';
 
 export default function Contact({navigation}) {
   const [valueTextInput, setValueTextInput] = useState('');
@@ -52,8 +54,9 @@ export default function Contact({navigation}) {
           <View style={styles.leftPart}>
             <Image
               source={
-                item.item.avatar ||
-                require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+                item.item.avatar
+                  ? {uri: item.item.avatar}
+                  : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
               }
               style={styles.img}
             />
@@ -94,7 +97,7 @@ export default function Contact({navigation}) {
             setValueTextInput('');
           }}>
           <Ionicons
-            name={'close-circle-outline'}
+            name={'search-outline'}
             size={25}
             color={'#143375'}
             style={styles.imgClose}
@@ -131,7 +134,16 @@ export default function Contact({navigation}) {
         <ActionButton.Item
           buttonColor="#143375"
           title="Tìm bạn bè từ số điện thoại trong danh bạ"
-          onPress={() => navigation.navigate('FindFriendFromContact')}>
+          onPress={async () => {
+            if (Platform.OS === 'android') {
+              await requestContactsPermission()
+                .then(_ => {})
+                .catch(() => {
+                  Alert.alert('Vui lòng cho phép truy cập danh bạ!');
+                });
+            }
+            navigation.navigate('FindFriendFromContact');
+          }}>
           <Ionicons
             name={'browsers-outline'}
             size={25}

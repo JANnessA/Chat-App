@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,76 +10,99 @@ import {
   Modal,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import _, {add} from 'lodash';
-import FakeData from '../../fakedata';
+import {getContacts, createConversation} from '../../helpers/network';
+import {useIsFocused} from '@react-navigation/native';
 
 export default function CreateGroup({navigation}) {
   const [valueTextInput, setValueTextInput] = useState('');
-  const [list, setList] = useState([]);
-  const [chooseItem, setChooseItem] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [chatGroupName, setChatGroupName] = useState('');
 
-  let colorTxtCreate = chatGroupName.length > 0 ? '#143375' : '#ddd';
+  const [listChooses, setListChooses] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const isFocused = useIsFocused();
 
-  //phần này xử lí kiểu chọn vào ô và bỏ chọn thì thêm vào state list để hiển thị danh sách người đã được chọn mà tớ chưa xử lý được.
-  function solveList(name) {
-    console.log('list', list);
-    let a = list.includes(name);
-    console.log('a', a);
-    //   ? list.splice(list.findIndex(name), 1)
-    //   : list.concat(name);
-  }
+  useEffect(() => {
+    getData();
+  }, [isFocused]);
 
-  //const fakeData1 = ['jannn1', 'jannn2'];
-  const [data1, setData1] = useState([]);
-  const addItem = (arr, item) => {
-    const check = arr.find(x => x.username === item.username);
-    if (!check) {
-      arr.push(item);
-      setData1(arr);
-    } else {
-      arr.splice(_.findIndex(arr, {username: item.username}), 1);
-      setData1(arr);
+  const getData = async () => {
+    const {data, success} = await getContacts({
+      pageSize: 1000,
+      pageIndex: 1,
+      status: 1,
+    });
+    if (success) {
+      setContacts(data.contacts);
     }
   };
-  const checkFind = () => {
-    console.log('data123', data1);
+
+  let colorTxtCreate = chatGroupName.length > 0 ? '#143375' : '#ddd';
+
+  const selectContact = item => {
+    const check = listChooses.find(x => x.userId === item.userId);
+    if (!check) {
+      setListChooses([...listChooses, item]);
+    } else {
+      setListChooses(listChooses.filter(x => x.userId !== item.userId));
+    }
   };
 
-  function renderItem({item}) {
+  const RenderListChoose = ({item, index}) => {
+    return (
+      <>
+        <Text key={item.userId} style={styles.list}>
+          {item.name}
+        </Text>
+        {index !== listChooses.length - 1 && <Text>{' - '}</Text>}
+      </>
+    );
+  };
+
+  function renderItem(item) {
     return (
       <View style={styles.contaiItem}>
-        {
-          //gọi solveList ở onPress setList(...)
-        }
         <TouchableOpacity
           style={styles.buttonItem}
           onPress={() => {
-            console.log('item', item);
-            setList(list.concat(item.item.username));
-            addItem(data1, item.item);
-            checkFind();
+            selectContact(item.item);
           }}>
           <View style={styles.leftPart}>
             <Image
-              source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
+              source={
+                item.item.avatar
+                  ? {uri: item.item.avatar}
+                  : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+              }
               style={styles.img}
             />
-            <Text style={styles.name}>{item.item.username}</Text>
+            <Text style={styles.name}>{item.item.name}</Text>
           </View>
         </TouchableOpacity>
       </View>
     );
   }
 
-  function renderItemG({item}) {
+  function renderItemG(item) {
     return (
       <View style={styles.contaiItemG}>
-        <Text>{item.item.username}</Text>
+        <Text>{item.item.name}</Text>
       </View>
     );
   }
+  const handleCreateGroup = async () => {
+    const {data, message} = await createConversation({
+      members: listChooses.map(e => e.userId),
+      name: chatGroupName,
+    });
+    if (data) {
+      navigation.pop();
+      navigation.navigate({
+        name: 'ChatDetail',
+        params: {item: {item: data}},
+      });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -122,7 +145,7 @@ export default function CreateGroup({navigation}) {
               setValueTextInput('');
             }}>
             <Ionicons
-              name={'close-circle-outline'}
+              name={'search-outline'}
               size={25}
               color={'#143375'}
               style={styles.imgClose}
@@ -131,19 +154,14 @@ export default function CreateGroup({navigation}) {
         </View>
       </View>
       <View style={styles.resultV}>
-        {data1?.map((item, index) => {
-          return (
-            <>
-              <Text style={styles.list}>{item.username}</Text>
-              {index !== data1.length - 1 && <Text>{' - '}</Text>}
-            </>
-          );
-        })}
+        {listChooses?.map((item, index) => (
+          <RenderListChoose item={item} index={index} key={item.userId} />
+        ))}
       </View>
       <FlatList
-        data={FakeData}
-        renderItem={item => renderItem({item})}
-        keyExtractor={item => item.id}
+        data={contacts}
+        renderItem={item => renderItem(item)}
+        keyExtractor={item => item.userId}
         showsVerticalScrollIndicator={false}
         style={{marginTop: 10}}
       />
@@ -151,22 +169,22 @@ export default function CreateGroup({navigation}) {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={{alignItems: 'center'}}>
-              <Text style={styles.modalText}>ĐẶT TÊN NHÓM CHAT MỚI</Text>
+              <Text style={styles.modalText}>ĐẶT TÊN NHÓM CHAT</Text>
               <TextInput
                 value={chatGroupName}
                 style={styles.inputG}
                 onChangeText={t => setChatGroupName(t)}
                 placeholderTextColor="#000"
-                placeholder="Tên nhóm (Bắt buộc)"
+                placeholder="Tên nhóm"
                 keyboardType="default"
               />
             </View>
             <View style={styles.line} />
             <Text style={styles.Txt}>Thành viên nhóm</Text>
             <FlatList
-              data={FakeData}
-              renderItem={item => renderItemG({item})}
-              keyExtractor={item => item.id}
+              data={listChooses}
+              renderItem={item => renderItemG(item)}
+              keyExtractor={item => item.userId}
               showsVerticalScrollIndicator={false}
               style={{marginTop: 10}}
             />
@@ -177,12 +195,7 @@ export default function CreateGroup({navigation}) {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonCreate}
-              onPress={() =>
-                navigation.navigate({
-                  name: 'ChatDetail',
-                  params: {item: chatGroupName},
-                })
-              }>
+              onPress={handleCreateGroup}>
               <Text style={[styles.createTxt, {color: colorTxtCreate}]}>
                 Tạo
               </Text>

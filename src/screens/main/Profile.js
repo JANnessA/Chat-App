@@ -118,7 +118,11 @@ export default function Profile({navigation}) {
         <View style={styles.contaiAva}>
           <TouchableOpacity onPress={() => handlePickImg()} style={styles.ava}>
             <Image
-              source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
+              source={
+                user.avatar
+                  ? {uri: user.avatar}
+                  : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+              }
               style={styles.avata}
             />
           </TouchableOpacity>

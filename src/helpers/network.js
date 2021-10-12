@@ -25,9 +25,9 @@ export function getAuth() {
 
 export function searchPhone(params) {
   return API.fetch({
-    method: 'GET',
+    method: 'POST',
     url: `${BASE_API_URL}/user/search`,
-    params,
+    data: params,
   }).then(response => response.data);
 }
 
@@ -87,6 +87,14 @@ export function getMessages(params) {
   }).then(response => response.data);
 }
 
+export function sendMessage(params) {
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/message`,
+    data: params,
+  }).then(response => response.data);
+}
+
 export function startCall(params) {
   return API.fetch({
     method: 'POST',
@@ -107,6 +115,14 @@ export function endCalling(params) {
   return API.fetch({
     method: 'POST',
     url: `${BASE_API_URL}/call/end`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function uploadFile(params) {
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/upload`,
     data: params,
   }).then(response => response.data);
 }

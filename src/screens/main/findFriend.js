@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -7,25 +7,25 @@ import {
   TextInput,
   FlatList,
   Image,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import FakeData from '../../fakedata';
+import {addContact, searchPhone, respondContact} from '../../helpers/network';
+import Context from '../../helpers/context';
 
 export default function FindFriend({navigation}) {
   const [valueSearch, setValueSearch] = useState('');
-  //data chỉ trả về một array có 1 phần tử, nếu ko: chưa xử lí => chọn kết bạn với 1 phần tử nó sẽ hiển thị là kết bạn với tất cả
-  const data = [
-    {
-      id: 1,
-      username: 'Jann',
-      phone: '0394567889',
-      email: 'tuyenletm31@gmail.com',
-      lastMes:
-        'To render multiple columns, use the numColumns prop. Using this approach instead of a flexWrap layout can prevent conflicts with the item height logic.',
-    },
-  ];
-  const [chooseContact, setChooseContact] = useState(false);
-  const [mess, setMess] = useState('Chào bạn, mình làm quen được không?');
+  const [data, setData] = useState([]);
+  const {user} = useContext(Context);
+
+  const handleSearchPhone = async () => {
+    const userSeacrh = await searchPhone({phone: [valueSearch]});
+    if (!userSeacrh.data.length) {
+      Alert.alert('Không tìm thấy người dùng');
+    } else {
+      setData(userSeacrh.data);
+    }
+  };
 
   function renderItem(item) {
     return (
@@ -34,52 +34,87 @@ export default function FindFriend({navigation}) {
           <View style={styles.leftPart}>
             <Image
               source={
-                item.item.avatar ||
-                require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+                item.item.avatar
+                  ? {uri: item.item.avatar}
+                  : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
               }
               style={styles.img}
             />
           </View>
           <View style={styles.rightPart}>
-            <Text style={styles.name}>{item.item.username}</Text>
+            <Text style={styles.name}>{item.item.fullname}</Text>
             <Text style={styles.txtItem} numberOfLines={1}>
               {item.item.phone}
             </Text>
           </View>
         </View>
         <View style={styles.inline}>
-          <TouchableOpacity
-            style={styles.buttonAddFriend}
-            onPress={() => {
-              setChooseContact(true);
-            }}>
-            <Text style={styles.txtButton}>Thêm bạn</Text>
-          </TouchableOpacity>
+          {!item.item.contact && (
+            <TouchableOpacity
+              style={styles.buttonAddFriend}
+              onPress={async () => {
+                const {success} = await addContact({friendId: item.item._id});
+                if (success) {
+                  const newData = data[0];
+                  newData.contact = {
+                    status: 0,
+                    sender: user._id,
+                  };
+                  setData([newData]);
+                }
+              }}>
+              <Text style={styles.txtButton}>Thêm bạn</Text>
+            </TouchableOpacity>
+          )}
+          {item.item.contact?.status === 0 &&
+            item.item.contact?.sender === user._id && (
+              <TouchableOpacity style={styles.buttonAddFriend}>
+                <Text style={styles.txtButton}>Đã gủi lời mời</Text>
+              </TouchableOpacity>
+            )}
+          {item.item.contact?.status === 0 &&
+            item.item.contact?.sender !== user._id && (
+              <TouchableOpacity
+                style={styles.buttonAddFriend}
+                onPress={async () => {
+                  const {success} = await respondContact({
+                    contactId: item.item.contact?._id,
+                    respond: 1,
+                  });
+                  if (success) {
+                    Alert.alert('Đã chấp nhận yêu cầu kết bạn');
+                  }
+                  const newData = data[0];
+                  newData.contact = {
+                    status: 2,
+                  };
+                  setData([newData]);
+                }}>
+                <Text style={styles.txtButton}>Chấp nhận lời mời</Text>
+              </TouchableOpacity>
+            )}
           <TouchableOpacity
             style={styles.buttonViewProfile}
-            onPress={() => navigation.navigate('Profile')}>
-            <Text style={styles.txtButton}>Xem trang cá nhân</Text>
+            onPress={() => {
+              navigation.navigate({
+                name: 'ChatDetail',
+                params: {
+                  item: {
+                    item: {
+                      ...item,
+                      userId: item.item._id,
+                      conversationId: item.item.conversation?._id || null,
+                      avatar: item.item.avatar,
+                      name: item.item.fullname,
+                    },
+                    fromContact: true,
+                  },
+                },
+              });
+            }}>
+            <Text style={styles.txtButton}>Nhắn tin</Text>
           </TouchableOpacity>
         </View>
-        {chooseContact && (
-          <View style={styles.contaiInput}>
-            <TextInput
-              value={mess}
-              style={styles.inputMes}
-              onChangeText={t => setMess(t)}
-              placeholderTextColor="#aaa"
-              placeholder="Nhập tin nhắn giới thiệu"
-              keyboardType="default"
-            />
-            <TouchableOpacity
-              style={styles.sendButton}
-              onPress={() => {
-                navigation.navigate('Contact');
-              }}>
-              <Text style={styles.txtSendButton}>Gửi</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
     );
   }
@@ -112,18 +147,16 @@ export default function FindFriend({navigation}) {
             <TextInput
               value={valueSearch}
               style={styles.input}
-              onChangeText={t => setValueSearch(t)}
+              onChangeText={value => setValueSearch(value)}
               placeholderTextColor="#aaa"
               placeholder="Search"
               keyboardType="default"
             />
             <TouchableOpacity
               style={styles.contaiIcon}
-              onPress={() => {
-                setValueSearch('');
-              }}>
+              onPress={handleSearchPhone}>
               <Ionicons
-                name={'close-circle-outline'}
+                name={'search-outline'}
                 size={25}
                 color={'#143375'}
                 style={styles.imgClose}

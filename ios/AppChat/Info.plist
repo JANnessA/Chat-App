@@ -74,5 +74,7 @@
 <string>Yeu cau camera</string>
 <key>NSMicrophoneUsageDescription</key>
 <string>Yeu cau microphone</string>
+<key>NSContactsUsageDescription</key>
+<string>Allow Contact Access</string>
 </dict>
 </plist>
