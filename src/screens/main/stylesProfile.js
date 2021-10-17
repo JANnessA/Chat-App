@@ -8,7 +8,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {flex: 1.2, width: '100%', height: '100%'},
-  buttonMenu: {position: 'absolute', top: 5, right: 5, marginBottom: 10},
+  buttonMenu: {
+    // position: 'absolute',
+    top: 5,
+    right: 5,
+    marginBottom: 10,
+  },
   contaiAva: {justifyContent: 'center', alignItems: 'center'},
   ava: {justifyContent: 'center', alignItems: 'center'},
   avata: {
@@ -77,7 +82,7 @@ export const styles = StyleSheet.create({
   inlineComment: {flexDirection: 'row', alignItems: 'center'},
   modalView: {
     backgroundColor: 'white',
-    padding: 35,
+    padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -90,7 +95,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  buttonClose: {position: 'absolute', top: 20, left: 20, marginBottom: 50},
+  buttonClose: {top: 20, marginBottom: 50},
   contaiButton: {
     width: '100%',
     height: 60,

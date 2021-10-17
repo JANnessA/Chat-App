@@ -83,7 +83,6 @@ export default function Profile({navigation}) {
   useEffect(() => {
     getData();
     getUserInfor1();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count]);
 
   const chooseFile = () => {
@@ -228,13 +227,16 @@ export default function Profile({navigation}) {
                 <Text>Cập nhật bài đăng</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => {
-                  deletePost({
+                onPress={async () => {
+                  await deletePost({
                     _id: item._id,
                     content: item.content,
                     image: item.image,
                   });
                   setModalMore(false);
+                  const data = await getPosts();
+                  // console.log('data', data);
+                  setDataPost(data);
                 }}
                 style={styles.buttonUpdate}>
                 <Text>Xóa bài đăng</Text>
@@ -313,8 +315,8 @@ export default function Profile({navigation}) {
         //modal setting
       }
       <Modal animationType="slide" transparent={true} visible={visibleSetting}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+        <View>
+          <View style={[styles.modalView, {flexDirection: 'row'}]}>
             <TouchableOpacity
               style={styles.buttonClose}
               onPress={() => setVisibleSetting(!visibleSetting)}>
@@ -324,7 +326,7 @@ export default function Profile({navigation}) {
                 color={'#000'}
               />
             </TouchableOpacity>
-            <View style={{marginTop: 50, width: '100%'}}>
+            <View style={{marginTop: 50, width: '80%'}}>
               <TouchableOpacity
                 style={styles.contaiButton}
                 onPress={() => {
