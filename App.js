@@ -11,6 +11,7 @@ import FriendProfile from './src/screens/main/friendProfile';
 import CreateGroup from './src/screens/main/createGroup';
 import VideoCall from './src/screens/main/VideoCall';
 import Context from './src/helpers/context';
+import Comment from './src/screens/main/Comment';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
             name="TopTab"
             component={TopTab}
             options={{headerTitle: 'Chat App'}}
+            initialParams={user}
           />
           <Stack.Screen
             name="ChatDetail"
@@ -71,6 +73,11 @@ export default function App() {
           <Stack.Screen
             name="VideoCall"
             component={VideoCall}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Comment"
+            component={Comment}
             options={{headerShown: false}}
           />
         </Stack.Navigator>

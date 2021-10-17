@@ -33,6 +33,7 @@ export default function Chat({navigation}) {
     return () => {
       socket.off(SocketEvent.SEND_MESSAGE);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getData = async () => {

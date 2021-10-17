@@ -1,36 +1,83 @@
-import React, {useState, useEffect, useContext} from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Image,
   TextInput,
   FlatList,
   Modal,
+  Dimensions,
+  Alert,
+  RefreshControl,
 } from 'react-native';
-import {getAuth} from '../../helpers/network';
+import {getAuth, getUserInfor} from '../../helpers/network';
 import AsyncStorage from '@react-native-community/async-storage';
 import Context from '../../helpers/context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import FakeStatus from '../../fakeStatus';
 import * as ImagePicker from 'react-native-image-picker';
+import {
+  newPost,
+  getPosts,
+  updatePost,
+  deletePost,
+  likePost,
+  updateUserInfor,
+} from '../../helpers/network';
+import {styles} from './stylesProfile';
 
 export default function Profile({navigation}) {
+  //pull to refresh
+  const [refreshing, setRefreshing] = React.useState(false);
   const [imageAvatar, setImageAvatar] = useState(0);
   const [avatarPath, setAvatarPath] = useState('');
   const {user, socket} = useContext(Context);
-  //có 2 modal có thể hiển thị khi chọn vào ava
-  // modal change ava cho phép sửa + xem ảnh đại diện => mình
+
+  // modal change ava cho phép sửa + xem ảnh đại diện
   const [modalChangeAva, setModalChangeAva] = useState(false);
-  // modal seeAva cho phép xem ảnh thôi => người khác
-  const [modalSeeAva, setModalSeeAva] = useState(false);
-  // lời giới thiệu bản thân
-  const [userIntroduce, setUserIntroduce] = useState('');
   // status mới
   const [inforNewStatus, setInforNewStatus] = useState('');
+  const [modalStatus, setModalStatus] = useState(false);
   // modal setting
   const [visibleSetting, setVisibleSetting] = useState(false);
+  //url ảnh avata
+  const [urlStatus, setUrlStatus] = useState('');
+  const [urlImage, setUrlImage] = useState('');
+  const [dataPost, setDataPost] = useState([]);
+  //count => reload data posts
+  const [count, setCount] = useState(0);
+  let i = 0;
+  //name user
+  let fullname = '';
+  // modal more in each status
+  const [modalMore, setModalMore] = useState(false);
+  //modal update post
+  const [modalUpdate, setModalUpdate] = useState(false);
+
+  const wait = timeout => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  };
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
+  const getData = async () => {
+    const data = await getPosts();
+    // console.log('data', data);
+    setDataPost(data);
+  };
+
+  const getUserInfor = async () => {
+    const data = await getUserInfor();
+  };
+
+  useEffect(() => {
+    getData();
+    getUserInfor();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
 
   const chooseFile = () => {
     const options = {
@@ -40,9 +87,10 @@ export default function Profile({navigation}) {
       maxWidth: 200,
     };
     ImagePicker?.launchImageLibrary(options, async response => {
+      setUrlImage(response.assets[0].uri);
       //-----Link uri gửi lên server là uri: res.assets[0].uri----
       const source = response;
-      console.log('res: ', source);
+      // console.log('res: ', source);
       // console.log('resAVA', res);
     });
   };
@@ -57,6 +105,14 @@ export default function Profile({navigation}) {
   //     setData(res.data);
   //   }
   // };
+  async function handleChangeAva() {
+    await chooseFile();
+    await updateUserInfor({
+      // fullName:
+      avatar: urlImage,
+    });
+    setModalChangeAva(false);
+  }
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('@token');
@@ -64,40 +120,100 @@ export default function Profile({navigation}) {
       navigation.navigate('Login');
     } catch (e) {}
   };
-  //biến userId xác định người đang xem là cá nhân hay người khác, nếu
-  // là cá nhân thì cho phép chỉnh sửa ảnh đại diện, còn người ngoài
-  // thì chỉ được xem
-  let userId = 1;
-
-  function handlePickImg() {
-    if (userId === 1) {
-      setModalChangeAva(true);
-    } else {
-      setModalSeeAva(true);
-    }
-  }
 
   function renderItem({item}) {
-    let url = '';
     return (
       <View style={styles.contaiItem}>
+        <TouchableOpacity
+          style={styles.iconMore}
+          onPress={() => setModalMore(true)}>
+          <Ionicons
+            name={'ellipsis-horizontal-outline'}
+            size={30}
+            color={'#000'}
+          />
+        </TouchableOpacity>
         <View style={styles.ei}>
           <Text style={{fontWeight: 'bold'}}>{item.date}</Text>
-          {
-            //tạm để ntn để hiểu giao diện, lúc ghép API thì dùng dòng này, chứ
-            // url !== '' && <Image source={{uri: url}} style={styles.img} />
-          }
-          {
-            //không dùng cái này
-            <Image
-              style={styles.img}
-              source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
-            />
-          }
-          <Text numberOfLines={3} ellipsizeMode="tail">
-            {item.Content}
+          {item.image.length > 0 && (
+            <Image style={styles.img} source={{uri: item.image[0]}} />
+          )}
+          <Text numberOfLines={3} ellipsizeMode="tail" style={styles.content}>
+            {item.content}
           </Text>
         </View>
+        <View style={styles.inlineView}>
+          <TouchableOpacity onPress={() => likePost({postId: item._id})}>
+            {
+              //so sasnh islike để lấy heart trắng và đỏ
+            }
+            <Image
+              source={require('../../assets/img/heart.png')}
+              style={{width: 30, height: 30}}
+            />
+          </TouchableOpacity>
+          <Text style={styles.txtStatus}>0</Text>
+          <TouchableOpacity
+            style={styles.inlineComment}
+            onPress={() =>
+              navigation.navigate('Comment', {
+                data: {item},
+              })
+            }>
+            <Ionicons
+              name={'chatbox-outline'}
+              size={30}
+              color={'#000'}
+              style={{marginLeft: 10}}
+            />
+            <Text style={styles.txtStatus}>Bình luận</Text>
+          </TouchableOpacity>
+        </View>
+        {
+          //modal more in each status
+        }
+        <Modal
+          animationType="none"
+          transparent={true}
+          visible={modalMore}
+          onRequestClose={() => {
+            setModalMore(false);
+          }}>
+          <View style={styles.centeredViewMore}>
+            <View style={styles.modalViewMore}>
+              <TouchableOpacity
+                style={styles.contaiCloseButton}
+                onPress={() => setModalMore(false)}>
+                <Ionicons
+                  name={'close-circle-outline'}
+                  size={30}
+                  color={'#143375'}
+                  style={styles.imgClose}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setModalStatus(true);
+                  setModalMore(false);
+                }}
+                style={styles.buttonUpdate}>
+                <Text>Cập nhật bài đăng</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  deletePost({
+                    _id: item._id,
+                    content: item.content,
+                    image: item.image,
+                  });
+                  setModalMore(false);
+                }}
+                style={styles.buttonUpdate}>
+                <Text>Xóa bài đăng</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -116,7 +232,9 @@ export default function Profile({navigation}) {
           />
         </TouchableOpacity>
         <View style={styles.contaiAva}>
-          <TouchableOpacity onPress={() => handlePickImg()} style={styles.ava}>
+          <TouchableOpacity
+            onPress={() => setModalChangeAva(true)}
+            style={styles.ava}>
             <Image
               source={
                 user.avatar
@@ -129,26 +247,18 @@ export default function Profile({navigation}) {
         </View>
         <View style={styles.infor}>
           <Text style={styles.txtInfor}>{user.fullname}</Text>
-          {userIntroduce !== '' ? (
-            <Text>{userIntroduce}</Text>
-          ) : (
-            <TouchableOpacity>
-              <Text>Thêm lời giới thiệu bản thân</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </View>
       <View style={styles.inline}>
-        <TextInput
-          value={inforNewStatus}
+        <TouchableOpacity
           style={styles.inputMes}
-          onChangeText={t => setInforNewStatus(t)}
-          placeholderTextColor="#143375"
-          placeholder="Bạn đang nghĩ gì?"
-          keyboardType="default"
-        />
+          onPress={() => setModalStatus(true)}>
+          <Text style={styles.txtThinking}>Bạn đang nghĩ gì?</Text>
+        </TouchableOpacity>
         <View style={styles.contaiButtonImg}>
-          <TouchableOpacity style={styles.buttonImg}>
+          <TouchableOpacity
+            style={styles.buttonImg}
+            onPress={() => setModalStatus(true)}>
             <Ionicons
               name={'image-outline'}
               size={40}
@@ -160,12 +270,16 @@ export default function Profile({navigation}) {
       </View>
       <View style={styles.body}>
         <FlatList
-          data={FakeStatus}
+          data={dataPost.data}
           renderItem={item => renderItem(item)}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item._id}
           showsVerticalScrollIndicator={false}
-          style={{marginTop: 10, width: '90%'}}
-        />
+          style={{
+            marginTop: 10,
+            width: Dimensions.get('window').width * 0.9,
+          }}>
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        </FlatList>
       </View>
       {
         //modal setting
@@ -183,14 +297,21 @@ export default function Profile({navigation}) {
               />
             </TouchableOpacity>
             <View style={{marginTop: 50, width: '100%'}}>
-              <TouchableOpacity style={styles.contaiButton}>
+              <TouchableOpacity
+                style={styles.contaiButton}
+                onPress={() => {
+                  setModalChangeAva(true);
+                  setVisibleSetting(false);
+                }}>
                 <Text style={styles.txtButton}>Đổi ảnh đại diện</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.contaiButton}>
-                <Text style={styles.txtButton}>
-                  Cập nhật giới thiệu bản thân
-                </Text>
-              </TouchableOpacity>
+              {
+                // <TouchableOpacity style={styles.contaiButton}>
+                //   <Text style={styles.txtButton}>
+                //     Cập nhật thông tin cá nhân
+                //   </Text>
+                // </TouchableOpacity>
+              }
               <TouchableOpacity
                 style={[styles.contaiButton, {backgroundColor: '#326cd1'}]}
                 onPress={() => handleLogout()}>
@@ -208,146 +329,159 @@ export default function Profile({navigation}) {
       <Modal animationType="slide" transparent={true} visible={modalChangeAva}>
         <View style={styles.centeredViewAva}>
           <View style={styles.modalViewAva}>
-            <TouchableOpacity style={styles.contaiButton} onPress={chooseFile}>
+            <TouchableOpacity
+              style={styles.contaiCloseButton}
+              onPress={() => setModalChangeAva(false)}>
+              <Ionicons
+                name={'close-circle-outline'}
+                size={40}
+                color={'#143375'}
+                style={styles.imgClose}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.contaiButton}
+              onPress={() => {
+                handleChangeAva();
+              }}>
               <Text style={styles.txtButton}>Đổi ảnh đại diện</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
       {
-        //modal change User Introduction
-        //   <Modal animationType="slide" transparent={true} visible={modalChangeAva}>
-        //   <View style={styles.centeredViewAva}>
-        //     <View style={styles.modalViewAva}>
-        //       <TouchableOpacity style={styles.contaiButton}>
-        //         <Text style={styles.txtButton}>Đổi ảnh đại diện</Text>
-        //       </TouchableOpacity>
-        //     </View>
-        //   </View>
-        // </Modal>
+        //modal Status
       }
+      <Modal animationType="slide" transparent={true} visible={modalStatus}>
+        <View style={styles.centeredViewStatus}>
+          <View style={styles.modalViewStatus}>
+            <TouchableOpacity
+              style={styles.contaiCloseButton}
+              onPress={() => setModalStatus(false)}>
+              <Ionicons
+                name={'close-circle-outline'}
+                size={35}
+                color={'#143375'}
+                style={styles.imgClose}
+              />
+            </TouchableOpacity>
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              {urlStatus == '' ? (
+                <TouchableOpacity
+                  style={styles.buttonAddImageStatus}
+                  onPress={chooseFile}>
+                  {urlImage ? (
+                    <Image
+                      source={{uri: urlImage}}
+                      style={{height: '100%', width: '100%'}}
+                      resizeMode={'contain'}
+                    />
+                  ) : (
+                    <Text>Thêm ảnh</Text>
+                  )}
+                </TouchableOpacity>
+              ) : (
+                <Image source={{uri: urlStatus}} />
+              )}
+              <TextInput
+                value={inforNewStatus}
+                onChangeText={t => setInforNewStatus(t)}
+                placeholderTextColor="#143375"
+                placeholder="Bạn đang nghĩ gì?"
+                keyboardType="default"
+                style={styles.txtInputStatus}
+                multiline={true}
+              />
+              <TouchableOpacity
+                style={styles.buttonC}
+                onPress={() => {
+                  setCount(i++);
+                  urlImage
+                    ? newPost({
+                        content: inforNewStatus,
+                        image: [urlImage],
+                      })
+                    : newPost({
+                        content: inforNewStatus,
+                      });
+                  setModalStatus(false);
+                  setUrlImage('');
+                  setInforNewStatus('');
+                }}>
+                <Text style={{color: '#fff', fontSize: 15}}>Xác nhận</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {
+        //modal update Status
+      }
+      <Modal animationType="slide" transparent={true} visible={modalUpdate}>
+        <View style={styles.centeredViewStatus}>
+          <View style={styles.modalViewStatus}>
+            <TouchableOpacity
+              style={styles.contaiCloseButton}
+              onPress={() => setModalUpdate(false)}>
+              <Ionicons
+                name={'close-circle-outline'}
+                size={35}
+                color={'#143375'}
+                style={styles.imgClose}
+              />
+            </TouchableOpacity>
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              {urlStatus == '' ? (
+                <TouchableOpacity
+                  style={styles.buttonAddImageStatus}
+                  onPress={chooseFile}>
+                  {urlImage ? (
+                    <Image
+                      source={{uri: urlImage}}
+                      style={{
+                        height: '100%',
+                        width: '100%',
+                      }}
+                      resizeMode={'contain'}
+                    />
+                  ) : (
+                    <Text style={{fontSize: 15}}>Thêm ảnh</Text>
+                  )}
+                </TouchableOpacity>
+              ) : (
+                <Image source={{uri: urlStatus}} />
+              )}
+              <TextInput
+                value={inforNewStatus}
+                onChangeText={t => setInforNewStatus(t)}
+                placeholderTextColor="#143375"
+                placeholder="Bạn đang nghĩ gì?"
+                keyboardType="default"
+                style={styles.txtInputStatus}
+                multiline={true}
+              />
+              <TouchableOpacity
+                style={styles.buttonC}
+                onPress={() => {
+                  setCount(i++);
+                  urlImage
+                    ? updatePost({
+                        content: inforNewStatus,
+                        image: [urlImage],
+                      })
+                    : updatePost({
+                        content: inforNewStatus,
+                      });
+                  setModalUpdate(false);
+                  setUrlImage('');
+                  setInforNewStatus('');
+                }}>
+                <Text style={{color: '#fff', fontSize: 15}}>Xác nhận</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 12,
-    alignItems: 'center',
-  },
-  header: {flex: 1.3, width: '100%', height: '100%'},
-  buttonMenu: {position: 'absolute', top: 5, right: 5, marginBottom: 10},
-  contaiAva: {justifyContent: 'center', alignItems: 'center'},
-  ava: {justifyContent: 'center', alignItems: 'center'},
-  avata: {
-    width: 150,
-    height: 150,
-    borderRadius: 80,
-  },
-  infor: {marginVertical: 5, justifyContent: 'center', alignItems: 'center'},
-  txtInfor: {
-    color: '#143375',
-    fontSize: 25,
-    fontWeight: 'bold',
-  },
-  inline: {
-    flexDirection: 'row',
-    width: '100%',
-    height: 100,
-    flex: 0.5,
-    backgroundColor: '#d5dbe3',
-    borderWidth: 0.5,
-    borderRadius: 10,
-  },
-  inputMes: {
-    flex: 0.9,
-    padding: 12,
-    borderWidth: 0.5,
-    borderColor: '#aaa',
-    borderRadius: 10,
-    color: '#05162e',
-  },
-  contaiButtonImg: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 0.5,
-    flex: 0.2,
-    borderColor: '#aaa',
-    borderRadius: 10,
-  },
-  buttonImg: {justifyContent: 'center', alignItems: 'center'},
-  body: {flex: 2},
-  contaiItem: {
-    width: '95%',
-    borderWidth: 0.5,
-    borderColor: '#aaa',
-    marginVertical: 12,
-    marginHorizontal: 12,
-    padding: 12,
-  },
-  ei: {
-    borderBottomColor: '#aaa',
-    borderBottomWidth: 0.5,
-    paddingBottom: 12,
-    marginBottom: 12,
-  },
-  img: {width: '100%', height: 200},
-  inlineView: {flexDirection: 'row'},
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
-  },
-  modalView: {
-    backgroundColor: 'white',
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: '100%',
-    height: '100%',
-  },
-  buttonClose: {position: 'absolute', top: 20, left: 20, marginBottom: 50},
-  contaiButton: {
-    width: '100%',
-    height: 60,
-    padding: 10,
-    backgroundColor: '#ddd',
-    justifyContent: 'center',
-    borderBottomWidth: 0.5,
-  },
-  txtButton: {fontSize: 20},
-  centeredViewAva: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 120,
-  },
-  modalViewAva: {
-    width: '80%',
-    height: 100,
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    justifyContent: 'center',
-  },
-});

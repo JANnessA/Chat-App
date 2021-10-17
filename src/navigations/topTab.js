@@ -9,7 +9,7 @@ import Context from '../helpers/context';
 
 const Tab = createMaterialTopTabNavigator();
 
-export default function TopTab({navigation}) {
+export default function TopTab({navigation, route}) {
   const {socket} = useContext(Context);
 
   useEffect(() => {
@@ -22,6 +22,7 @@ export default function TopTab({navigation}) {
     return () => {
       socket.off(SocketEvent.START_CALL);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <Tab.Navigator

@@ -1,5 +1,8 @@
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Alert} from 'react-native';
 import {BASE_API_URL} from '../configs';
 import {API} from './api';
+
 export function login(params) {
   return API.fetch({
     method: 'POST',
@@ -123,6 +126,108 @@ export function uploadFile(params) {
   return API.fetch({
     method: 'POST',
     url: `${BASE_API_URL}/upload`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function getUserInfor(params) {
+  return API.fetch({
+    method: 'GET',
+    url: `${BASE_API_URL}/user/me`,
+    params,
+  }).then(response => response.data);
+}
+
+export function updateUserInfor(params) {
+  // console.log('bbb', params);
+  return API.fetch({
+    method: 'PUT',
+    url: `${BASE_API_URL}/user/update`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function getPosts(params) {
+  return API.fetch({
+    method: 'GET',
+    url: `${BASE_API_URL}/posts`,
+    params,
+  }).then(response => response.data);
+  // const response = await API.fetch({
+  //   method: 'GET',
+  //   url: `${BASE_API_URL}/posts`,
+  //   params,
+  // });
+  // console.log('abc', response);
+  // return response;
+}
+
+export function newPost(params) {
+  // console.log('===paramnewpost======', params);
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/post`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function updatePost(params) {
+  return API.fetch({
+    method: 'PUT',
+    url: `${BASE_API_URL}/post/${params._id}`,
+    data: params,
+  }).then(response => {
+    response.data;
+  });
+}
+
+export function deletePost(params) {
+  return API.fetch({
+    method: 'DELETE',
+    url: `${BASE_API_URL}/post/${params._id}`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function likePost(params) {
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/post/like`,
+    data: params,
+  }).then(response => {
+    // console.log('mi', response.data);
+    response.data;
+  });
+}
+
+export function unlikePost(params) {
+  return API.fetch({
+    method: 'DELETE',
+    url: `${BASE_API_URL}/post/like`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function commentPost(params) {
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/post/comment`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function updateCommentPost(params) {
+  return API.fetch({
+    method: 'POST',
+    url: `${BASE_API_URL}/post/comment`,
+    data: params,
+  }).then(response => response.data);
+}
+
+export function deleteComentPost(params) {
+  return API.fetch({
+    method: 'DELETE',
+    url: `${BASE_API_URL}/post/comment`,
     data: params,
   }).then(response => response.data);
 }
