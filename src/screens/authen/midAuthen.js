@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
-  SafeAreaView ,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getAuth} from '../../helpers/network';
@@ -18,6 +18,7 @@ export default function MidAuthen({navigation}) {
   const {setSocket, setUser} = useContext(Context);
   useEffect(() => {
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuth = async () => {

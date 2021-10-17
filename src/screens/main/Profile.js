@@ -422,19 +422,22 @@ export default function Profile({navigation}) {
               />
               <TouchableOpacity
                 style={styles.buttonC}
-                onPress={() => {
+                onPress={async () => {
                   setCount(i++);
                   urlImage
-                    ? newPost({
+                    ? await newPost({
                         content: inforNewStatus,
                         image: [urlImage],
                       })
-                    : newPost({
+                    : await newPost({
                         content: inforNewStatus,
                       });
                   setModalStatus(false);
                   setUrlImage('');
                   setInforNewStatus('');
+                  const data = await getPosts();
+                  // console.log('data', data);
+                  setDataPost(data);
                 }}>
                 <Text style={{color: '#fff', fontSize: 15}}>Xác nhận</Text>
               </TouchableOpacity>
@@ -490,19 +493,22 @@ export default function Profile({navigation}) {
               />
               <TouchableOpacity
                 style={styles.buttonC}
-                onPress={() => {
+                onPress={async () => {
                   setCount(i++);
                   urlImage
-                    ? updatePost({
+                    ? await updatePost({
                         content: inforNewStatus,
                         image: [urlImage],
                       })
-                    : updatePost({
+                    : await updatePost({
                         content: inforNewStatus,
                       });
                   setModalUpdate(false);
                   setUrlImage('');
                   setInforNewStatus('');
+                  const data = await getPosts();
+                  // console.log('data', data);
+                  setDataPost(data);
                 }}>
                 <Text style={{color: '#fff', fontSize: 15}}>Xác nhận</Text>
               </TouchableOpacity>

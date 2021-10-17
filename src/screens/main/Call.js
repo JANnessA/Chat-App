@@ -28,6 +28,7 @@ export default function Call({navigation, route}) {
     return () => {
       socket.off(SocketEvent.DECLINE_CALL);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
