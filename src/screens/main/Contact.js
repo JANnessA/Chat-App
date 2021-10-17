@@ -75,7 +75,6 @@ export default function Contact({navigation}) {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView />
       <View style={styles.contaiSearch}>
         <TouchableOpacity style={styles.contaiIcon}>
           <Ionicons

@@ -53,7 +53,6 @@ export default function Register({navigation}) {
     <ImageBackground
       source={require('../../assets/img/ihfnlpbze7o01.jpg')}
       style={styles.container}>
-      <SafeAreaView />
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name={'chevron-back-outline'} size={30} color={'#fff'} />
       </TouchableOpacity>

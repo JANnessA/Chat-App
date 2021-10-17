@@ -76,7 +76,6 @@ export default function FriendRequest({navigation}) {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView />
       <TouchableOpacity
         style={styles.buttonBack}
         onPress={() => navigation.goBack()}>

@@ -35,7 +35,6 @@ export default function MidAuthen({navigation}) {
     <ImageBackground
       source={require('../../assets/img/496ecb14589707.562865d064f9e.png')}
       style={styles.container}>
-      <SafeAreaView />
       <View style={styles.contaiTitle}>
         <Ionicons name={'chatbubble-outline'} size={120} color={'#3e0d73'} />
         <Text style={styles.title}>App Chat</Text>

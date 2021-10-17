@@ -122,7 +122,6 @@ export default function FindFriend({navigation}) {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView />
       <TouchableOpacity
         style={styles.returnIcon}
         onPress={() => {

@@ -248,7 +248,6 @@ export default function Profile({navigation}) {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.buttonMenu}

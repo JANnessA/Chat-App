@@ -96,7 +96,6 @@ export default function Comment({navigation, route}) {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView />
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons
           name={'chevron-back-outline'}

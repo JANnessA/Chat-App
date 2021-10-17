@@ -32,7 +32,6 @@ export default function Call({navigation, route}) {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView />
       <View>
         <View style={styles.containerItem}>
           <Image
