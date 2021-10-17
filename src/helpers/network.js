@@ -139,7 +139,7 @@ export function getUserInfor(params) {
 }
 
 export function updateUserInfor(params) {
-   console.log('bbb', params);
+  console.log('bbb', params);
   return API.fetch({
     method: 'PUT',
     url: `${BASE_API_URL}/user/update`,
@@ -150,6 +150,7 @@ export function updateUserInfor(params) {
   });
 }
 
+//get all posts
 export function getPosts(params) {
   return API.fetch({
     method: 'GET',
@@ -163,6 +164,15 @@ export function getPosts(params) {
   // });
   // console.log('abc', response);
   // return response;
+}
+
+//get a post
+export function getPost(params) {
+  return API.fetch({
+    method: 'GET',
+    url: `${BASE_API_URL}/post/${params._id}`,
+    params,
+  }).then(response => response.data);
 }
 
 export function newPost(params) {
@@ -179,9 +189,7 @@ export function updatePost(params) {
     method: 'PUT',
     url: `${BASE_API_URL}/post/${params._id}`,
     data: params,
-  }).then(response => {
-    response.data;
-  });
+  }).then(response => response.data);
 }
 
 export function deletePost(params) {
@@ -197,10 +205,7 @@ export function likePost(params) {
     method: 'POST',
     url: `${BASE_API_URL}/post/like`,
     data: params,
-  }).then(response => {
-    // console.log('mi', response.data);
-    response.data;
-  });
+  }).then(response => response.data);
 }
 
 export function unlikePost(params) {

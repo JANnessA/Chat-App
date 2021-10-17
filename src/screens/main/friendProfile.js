@@ -18,7 +18,8 @@ import FakeStatus from '../../fakeStatus';
 import * as ImagePicker from 'react-native-image-picker';
 import {newPost, getPost} from '../../helpers/network';
 
-export default function FriendProfile({navigation}) {
+export default function FriendProfile({navigation, route}) {
+  const {userFriend} = route.params;
   const [imageAvatar, setImageAvatar] = useState(0);
   const [avatarPath, setAvatarPath] = useState('');
   const {user, socket} = useContext(Context);
@@ -34,9 +35,9 @@ export default function FriendProfile({navigation}) {
   const [urlStatus, setUrlStatus] = useState('');
   const [urlImage, setUrlImage] = useState('');
 
-  useEffect(() => {
-    getPost();
-  }, []);
+  // useEffect(() => {
+  //   getPost();
+  // }, []);
 
   const chooseFile = () => {
     const options = {
@@ -53,17 +54,7 @@ export default function FriendProfile({navigation}) {
       // console.log('resAVA', res);
     });
   };
-  // const [data, setData] = useState({});
-  // useEffect(() => {
-  //   setUserData();
-  // }, []);
 
-  // const setUserData = async () => {
-  //   const res = await getAuth();
-  //   if (res.success) {
-  //     setData(res.data);
-  //   }
-  // };
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('@token');
@@ -120,9 +111,10 @@ export default function FriendProfile({navigation}) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={{flex: 1, alignItems: 'center'}}>
+      <SafeAreaView />
       <TouchableOpacity
-        style={styles.buttonBack}
+        style={[styles.buttonBack]}
         onPress={() => navigation.goBack()}>
         <Ionicons name={'chevron-back-outline'} size={30} color={'#143375'} />
       </TouchableOpacity>
@@ -289,7 +281,7 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
   },
-  buttonBack: {position: 'absolute', left: 12, top: 12},
+  buttonBack: {left: 12, top: 12, alignSelf: 'flex-start'},
   header: {flex: 0.8, width: '100%', height: '100%'},
   buttonMenu: {position: 'absolute', top: 5, right: 5, marginBottom: 10},
   contaiAva: {justifyContent: 'center', alignItems: 'center'},

@@ -17,6 +17,7 @@ import {
   Dimensions,
   Alert,
   RefreshControl,
+  SafeAreaView,
 } from 'react-native';
 import {getAuth, getUserInfor} from '../../helpers/network';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -30,7 +31,8 @@ import {
   deletePost,
   likePost,
   updateUserInfor,
-  SafeAreaView,
+  uploadFile,
+  unlikePost,
 } from '../../helpers/network';
 import {styles} from './stylesProfile';
 
@@ -54,7 +56,13 @@ export default function Profile({navigation}) {
   const [dataPost, setDataPost] = useState([]);
   //count => reload data posts
   const [count, setCount] = useState(0);
+  const [avatar, setAvatar] = useState('');
+  const [likeTus, setLikeTus] = useState(false);
+  const [likeTusCount, setLikeTusCount] = useState(0);
+   console.log(user);
+
   let i = 0;
+  let i2 = 0;
   //name user
   let fullname = '';
   // modal more in each status
@@ -98,6 +106,14 @@ export default function Profile({navigation}) {
       const source = response;
       // console.log('res: ', source);
       // console.log('resAVA', res);
+      const formData = new FormData();
+      formData.append('files', {
+        uri: response.assets[0].uri,
+        type: response.assets[0].type,
+        name: response.assets[0].fileName,
+      });
+      const data = await uploadFile(formData);
+      setUrlImage(data.data.toString());
     });
   };
   const chooseFileAva = () => {
@@ -113,33 +129,31 @@ export default function Profile({navigation}) {
       const source = response;
       // console.log('res: ', source);
       // console.log('resAVA', res);
-      await updateUserInfor({
-        avatar: response.assets[0].uri,
-        //fullname: user.fullname,
-        //email: user.email,
-        //dateOfBirth: user.dateOfBirth,
-        //password: user.password,
-        //coverImage: '',
+      const formData = new FormData();
+      formData.append('files', {
+        uri: response.assets[0].uri,
+        type: response.assets[0].type,
+        name: response.assets[0].fileName,
       });
+      const data = await uploadFile(formData);
+      await setAvatar(data.data.toString());
+
+      const updateAva = await updateUserInfor({
+        avatar: data.data.toString(),
+        _id: user._id,
+      });
+      console.log('data', data.data.toString());
+      console.log('updateAva', updateAva);
     });
   };
-  // const [data, setData] = useState({});
-  // useEffect(() => {
-  //   setUserData();
-  // }, []);
 
-  // const setUserData = async () => {
-  //   const res = await getAuth();
-  //   if (res.success) {
-  //     setData(res.data);
-  //   }
-  // };
   async function handleChangeAva() {
     console.log('user', user);
     await chooseFileAva();
 
     setModalChangeAva(false);
   }
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('@token');
@@ -148,7 +162,7 @@ export default function Profile({navigation}) {
     } catch (e) {}
   };
 
-  function renderItem({item}) {
+  function renderItem({item, index}) {
     return (
       <View style={styles.contaiItem}>
         <TouchableOpacity
@@ -170,21 +184,56 @@ export default function Profile({navigation}) {
           </Text>
         </View>
         <View style={styles.inlineView}>
-          <TouchableOpacity onPress={() => likePost({postId: item._id})}>
-            {
-              //so sasnh islike để lấy heart trắng và đỏ
-            }
-            <Image
-              source={require('../../assets/img/heart.png')}
-              style={{width: 30, height: 30}}
-            />
-          </TouchableOpacity>
-          <Text style={styles.txtStatus}>0</Text>
+          {!likeTus ? (
+            <TouchableOpacity
+              onPress={async () => {
+                // console.log('abc');
+                const likeTus = await likePost({postId: item._id});
+                // console.log('like', likeTus);
+                const data = await getPosts();
+                // console.log('data', data.data[index]);
+                setDataPost(data);
+                if (likeTus.data === true) {
+                  setLikeTus(true);
+                  setLikeTusCount(data.data[index].like.length);
+                }
+              }}>
+              {
+                //so sasnh islike để lấy heart trắng và đỏ
+              }
+              <Image
+                source={require('../../assets/img/heart.png')}
+                style={[{width: 30, height: 30}]}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={async () => {
+                const unlikeTus = await unlikePost({postId: item._id});
+                console.log('unlike', unlikeTus);
+                if (unlikeTus.success === false) {
+                  setLikeTus(false);
+                  setLikeTusCount(0);
+                }
+              }}>
+              {
+                //so sasnh islike để lấy heart trắng và đỏ
+              }
+              <Image
+                source={require('../../assets/img/heartRed.png')}
+                style={[{width: 30, height: 30}]}
+              />
+            </TouchableOpacity>
+          )}
+          <Text style={styles.txtStatus}>{likeTusCount}</Text>
           <TouchableOpacity
             style={styles.inlineComment}
             onPress={() =>
               navigation.navigate('Comment', {
                 data: {item},
+                countLike: likeTusCount,
+                name: user.fullname,
+                ava: avatar,
               })
             }>
             <Ionicons
@@ -235,7 +284,7 @@ export default function Profile({navigation}) {
                   });
                   setModalMore(false);
                   const data = await getPosts();
-                  // console.log('data', data);
+                  console.log('data', data);
                   setDataPost(data);
                 }}
                 style={styles.buttonUpdate}>
@@ -267,8 +316,8 @@ export default function Profile({navigation}) {
             style={styles.ava}>
             <Image
               source={
-                user.avatar
-                  ? {uri: user.avatar}
+                avatar !== ''
+                  ? {uri: avatar}
                   : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
               }
               style={styles.avata}
@@ -288,7 +337,10 @@ export default function Profile({navigation}) {
         <View style={styles.contaiButtonImg}>
           <TouchableOpacity
             style={styles.buttonImg}
-            onPress={() => setModalStatus(true)}>
+            onPress={() => {
+              setModalStatus(true);
+              setUrlImage('');
+            }}>
             <Ionicons
               name={'image-outline'}
               size={40}
@@ -316,9 +368,9 @@ export default function Profile({navigation}) {
       }
       <Modal animationType="slide" transparent={true} visible={visibleSetting}>
         <View>
-          <View style={[styles.modalView, {flexDirection: 'row'}]}>
+          <View style={[styles.modalView]}>
             <TouchableOpacity
-              style={styles.buttonClose}
+              style={[styles.buttonClose, {alignSelf: 'flex-start'}]}
               onPress={() => setVisibleSetting(!visibleSetting)}>
               <Ionicons
                 name={'chevron-back-outline'}

@@ -216,7 +216,14 @@ export default function ChatDetail({route, navigation}) {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.contaiName}
-          onPress={() => navigation.navigate('FriendProfile')}>
+          onPress={() => {
+            console.log('user', item);
+            // navigation.navigate('FriendProfile');
+            navigation.navigate({
+              name: 'FriendProfile',
+              params: {userFriend: item},
+            });
+          }}>
           <Image
             source={
               item.item.avatar

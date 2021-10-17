@@ -11,12 +11,11 @@ import {
   SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import FakeData from '../../fakedata';
-import {commentPost} from '../../helpers/network';
+import {commentPost, getPost} from '../../helpers/network';
 
 export default function Comment({navigation, route}) {
-  const {data} = route.params;
-  // console.log('ei', data.item.comments);
+  const {data, countLike, name, ava} = route.params;
+  console.log('dda', data.item.comments);
   // const [dataPost, setDataPost] = useState([]);
   // const getData = async () => {
   //   const data = await getPosts();
@@ -34,14 +33,23 @@ export default function Comment({navigation, route}) {
   //content of new comment
   const [comment, setComment] = useState('');
   //array comment
-  // const [arrComt, setArrComt] = useState(data.item.comment);
-
-  function handleCountNumberLike() {
-    return data.item.like.reduce((sum, item) => sum++);
-  }
+  const [arrComt, setArrComt] = useState([]);
+  useEffect(() => {
+    const arr = [];
+    data.item.comments.map(item => {
+      arr.push(item.comment);
+    });
+    setArrComt(arr);
+  }, []);
+  useEffect(() => {
+    getPost({
+      postId: data.item._id,
+    });
+  }, []);
   //url ảnh avata
   let url = 'abc';
   function renderItem({item}) {
+    console.log('e', item.comment);
     return (
       <View style={styles.contaiItem}>
         <TouchableOpacity style={styles.buttonName}>
@@ -52,9 +60,13 @@ export default function Comment({navigation, route}) {
           }
           <Image
             style={styles.img}
-            source={require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')}
+            source={
+              ava !== ''
+                ? {uri: ava}
+                : require('../../assets/img/9b7cd428b340dcc5cbbb628df1383893.jpg')
+            }
           />
-          <Text style={styles.name}>nguyen anh tuan</Text>
+          <Text style={styles.name}>{name}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.imgClose}
@@ -116,16 +128,29 @@ export default function Comment({navigation, route}) {
       </View>
       <View style={styles.line} />
       <View style={styles.inlineView}>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={async () => {
+            const getPost1 = await getPost({
+              postId: data.item._id,
+            });
+            console.log('getpost', getPost1);
+          }}>
           {
             //so sasnh islike để lấy heart trắng và đỏ
+            countLike > 0 ? (
+              <Image
+                source={require('../../assets/img/heartRed.png')}
+                style={{width: 30, height: 30}}
+              />
+            ) : (
+              <Image
+                source={require('../../assets/img/heart.png')}
+                style={{width: 30, height: 30}}
+              />
+            )
           }
-          <Image
-            source={require('../../assets/img/heart.png')}
-            style={{width: 30, height: 30}}
-          />
         </TouchableOpacity>
-        <Text style={styles.txtStatus}>{handleCountNumberLike}</Text>
+        <Text style={styles.txtStatus}>{countLike}</Text>
         <TouchableOpacity
           style={styles.inlineComment}
           onPress={() => navigation.navigate('Comment')}>
@@ -139,7 +164,7 @@ export default function Comment({navigation, route}) {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={data.item.comments}
+        data={arrComt}
         renderItem={item => renderItem(item)}
         keyExtractor={item => item.id}
         showsVerticalScrollIndicator={false}
@@ -162,7 +187,7 @@ export default function Comment({navigation, route}) {
               postId: data.item._id,
               comment: comment,
             });
-            data.item.comments.push(comment);
+            setArrComt([...arrComt, comment]);
             setComment('');
           }}>
           <Text style={styles.txtSend}>Send</Text>
