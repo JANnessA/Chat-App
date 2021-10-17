@@ -8,6 +8,7 @@ import {
   Image,
   Platform,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {GiftedChat, Bubble, Send, Composer} from 'react-native-gifted-chat';
@@ -206,6 +207,7 @@ export default function ChatDetail({route, navigation}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.buttonBack}

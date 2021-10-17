@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList,
   Modal,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FakeData from '../../fakedata';
@@ -15,7 +16,7 @@ import {commentPost} from '../../helpers/network';
 
 export default function Comment({navigation, route}) {
   const {data} = route.params;
- // console.log('ei', data.item.comments);
+  // console.log('ei', data.item.comments);
   // const [dataPost, setDataPost] = useState([]);
   // const getData = async () => {
   //   const data = await getPosts();
@@ -95,6 +96,7 @@ export default function Comment({navigation, route}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons
           name={'chevron-back-outline'}

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 const numColumn = 2;
 const WIDTH = Dimensions.get('window').width;
@@ -31,6 +32,7 @@ export default function Call({navigation, route}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <View>
         <View style={styles.containerItem}>
           <Image

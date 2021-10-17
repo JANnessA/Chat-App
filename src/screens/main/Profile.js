@@ -1,5 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   View,
   Text,
@@ -24,6 +30,7 @@ import {
   deletePost,
   likePost,
   updateUserInfor,
+  SafeAreaView,
 } from '../../helpers/network';
 import {styles} from './stylesProfile';
 
@@ -69,13 +76,13 @@ export default function Profile({navigation}) {
     setDataPost(data);
   };
 
-  const getUserInfor = async () => {
+  const getUserInfor1 = async () => {
     const data = await getUserInfor();
   };
 
   useEffect(() => {
     getData();
-    getUserInfor();
+    getUserInfor1();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count]);
 
@@ -94,6 +101,29 @@ export default function Profile({navigation}) {
       // console.log('resAVA', res);
     });
   };
+  const chooseFileAva = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+    ImagePicker?.launchImageLibrary(options, async response => {
+      setUrlImage(response.assets[0].uri);
+      //-----Link uri gửi lên server là uri: res.assets[0].uri----
+      const source = response;
+      // console.log('res: ', source);
+      // console.log('resAVA', res);
+      await updateUserInfor({
+        avatar: response.assets[0].uri,
+        //fullname: user.fullname,
+        //email: user.email,
+        //dateOfBirth: user.dateOfBirth,
+        //password: user.password,
+        //coverImage: '',
+      });
+    });
+  };
   // const [data, setData] = useState({});
   // useEffect(() => {
   //   setUserData();
@@ -106,11 +136,9 @@ export default function Profile({navigation}) {
   //   }
   // };
   async function handleChangeAva() {
-    await chooseFile();
-    await updateUserInfor({
-      // fullName:
-      avatar: urlImage,
-    });
+    console.log('user', user);
+    await chooseFileAva();
+
     setModalChangeAva(false);
   }
   const handleLogout = async () => {
@@ -220,6 +248,7 @@ export default function Profile({navigation}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.buttonMenu}

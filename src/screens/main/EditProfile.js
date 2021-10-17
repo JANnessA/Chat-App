@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -15,6 +16,7 @@ export default function EditProfile({navigation}) {
   const [email, setEmail] = useState('');
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <TouchableOpacity
         style={styles.buttonBack}
         onPress={() => navigation.goBack()}>

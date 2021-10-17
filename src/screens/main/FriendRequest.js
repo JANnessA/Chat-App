@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getContacts, respondContact} from '../../helpers/network';
@@ -75,6 +76,7 @@ export default function FriendRequest({navigation}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <TouchableOpacity
         style={styles.buttonBack}
         onPress={() => navigation.goBack()}>

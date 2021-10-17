@@ -7,6 +7,7 @@ import {
   Text,
   Dimensions,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import {RtcEngine, AgoraView} from 'react-native-agora';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -146,6 +147,7 @@ class VideoCall extends Component {
   videoView() {
     return (
       <View style={styles.full}>
+        <SafeAreaView />
         {this.state.peerIds.length > 1 ? (
           <View style={styles.full}>
             <View style={{height: (dimensions.height * 3) / 4 - 50}}>

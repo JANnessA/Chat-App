@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   Modal,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -47,6 +48,7 @@ export default function Login({navigation}) {
     <ImageBackground
       source={require('../../assets/img/ihfnlpbze7o01.jpg')}
       style={styles.container}>
+      <SafeAreaView />
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name={'chevron-back-outline'} size={30} color={'#fff'} />
       </TouchableOpacity>

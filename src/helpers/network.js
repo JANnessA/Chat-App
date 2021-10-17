@@ -139,12 +139,15 @@ export function getUserInfor(params) {
 }
 
 export function updateUserInfor(params) {
-  // console.log('bbb', params);
+   console.log('bbb', params);
   return API.fetch({
     method: 'PUT',
     url: `${BASE_API_URL}/user/update`,
     data: params,
-  }).then(response => response.data);
+  }).then(response => {
+    console.log('====rsupdate====', response);
+    response.data;
+  });
 }
 
 export function getPosts(params) {

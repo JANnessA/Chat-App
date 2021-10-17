@@ -8,6 +8,7 @@ import {
   FlatList,
   Platform,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import {TextInput} from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -74,6 +75,7 @@ export default function Contact({navigation}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <View style={styles.contaiSearch}>
         <TouchableOpacity style={styles.contaiIcon}>
           <Ionicons

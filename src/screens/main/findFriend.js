@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {addContact, searchPhone, respondContact} from '../../helpers/network';
@@ -121,6 +122,7 @@ export default function FindFriend({navigation}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <TouchableOpacity
         style={styles.returnIcon}
         onPress={() => {

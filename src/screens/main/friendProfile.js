@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList,
   Modal,
+  SafeAreaView,
 } from 'react-native';
 import {getAuth} from '../../helpers/network';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -120,6 +121,7 @@ export default function FriendProfile({navigation}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <TouchableOpacity
         style={styles.buttonBack}
         onPress={() => navigation.goBack()}>

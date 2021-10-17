@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   Modal,
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getContacts, createConversation} from '../../helpers/network';
@@ -106,6 +107,7 @@ export default function CreateGroup({navigation}) {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView />
       <TouchableOpacity
         style={styles.buttonBack}
         onPress={() => navigation.goBack()}>
